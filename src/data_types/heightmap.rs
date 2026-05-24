@@ -1,5 +1,5 @@
 ///A set of tools around creating/manipulating/combining 2.5D heightmap objects
-use crate::pointcloud::PointCloud;
+use crate::data_types::pointcloud::PointCloud;
 use anyhow::bail;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
