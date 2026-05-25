@@ -1,3 +1,3 @@
-mod backend;
-mod data_types;
-pub mod rgbd_cam;
+pub mod backend;
+pub mod data_types;
+pub mod depth_cam;

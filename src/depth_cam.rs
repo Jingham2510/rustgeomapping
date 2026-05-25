@@ -1,18 +1,28 @@
-use crate::backend::realsense::realsense_cam::{self, RealsenseCam};
+use crate::backend::realsense::realsense_cam::{RealsenseCam};
 ///High levels functions used to generate information from the RGBD cameras
 use crate::data_types::pointcloud::PointCloud;
 use anyhow::bail;
+use std::any::Any;
+use std::fmt;
 
 ///Available depth camera types
+#[derive(Debug)]
 enum CamType {
     Realsense,
 }
+
 
 ///Generic depth camera implementation
 pub struct DepthCam<T> {
     cam: T,
     cam_type: CamType,
     id: u32,
+}
+
+impl fmt::Display for DepthCam<RealsenseCam>{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "TYPE: {:?} - ID: {}", self.cam_type, self.id)
+    }
 }
 
 ///The minimum required traits for a depth camera to be useful
@@ -43,3 +53,11 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
         PointCloud::create_from_iter(pcl_info.0, pcl_info.1)
     }
 }
+
+
+impl DepthCam<RealsenseCam>{
+    pub fn connect_realsense(id : u32) -> Result<Self, anyhow::Error>{
+        DepthCam::connect(id)
+    }
+}
+  
