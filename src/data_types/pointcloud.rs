@@ -35,11 +35,14 @@ impl PointCloud {
     }
 
     ///Create a pointcloud from a list of vertices
-    pub fn create_from_iter(vertex: &[[f32; 3]], timestamp: f64) -> Result<Self, anyhow::Error> {
+    pub fn create_from_iter(
+        vertices: Vec<[f32; 3]>,
+        timestamp: f64,
+    ) -> Result<Self, anyhow::Error> {
         let mut points: Vec<[f32; 3]> = vec![];
         let mut no_of_points = 0;
 
-        for vertex in vertex.iter() {
+        for vertex in vertices.iter() {
             //check if the point is valid - if not ignore it
             if vertex[2] == 0.0 || vertex[2] > 2.0 {
                 continue;

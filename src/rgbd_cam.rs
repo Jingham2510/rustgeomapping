@@ -15,17 +15,15 @@ pub struct DepthCam<T> {
     id: u32,
 }
 
-///Connect to the camera
-pub trait Connect<T> {
+///The minimum required traits for a depth camera to be useful
+pub trait Required<T> {
+    ///Connect to the camera
     fn connect(id: u32) -> Result<DepthCam<T>, anyhow::Error>;
+    ///Take a pointcloud from the camera
+    fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error>;
 }
 
-///Take a pointcloud from the camera
-pub trait GetPointCloud<T> {
-    fn get_pointcloud(&self) -> Result<PointCloud, anyhow::Error>;
-}
-
-impl Connect<RealsenseCam> for DepthCam<RealsenseCam> {
+impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
     fn connect(id: u32) -> Result<DepthCam<RealsenseCam>, anyhow::Error> {
         let realsense_cam = RealsenseCam::initialise_raw(id as usize)?;
 
@@ -35,13 +33,11 @@ impl Connect<RealsenseCam> for DepthCam<RealsenseCam> {
             id,
         })
     }
-}
 
-impl GetPointCloud<RealsenseCam> for DepthCam<RealsenseCam> {
-    fn get_pointcloud(&self) -> Result<PointCloud, anyhow::Error> {
+    fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error> {
         const MAX_RANGE: f32 = 2.0;
 
-        let pcl_info = self.cam.get_depth_pnts(MAX_RANGE);
+        let pcl_info = self.cam.get_depth_pnts(MAX_RANGE)?;
 
         //Split the info into cloud and timestamp
         PointCloud::create_from_iter(pcl_info.0, pcl_info.1)
