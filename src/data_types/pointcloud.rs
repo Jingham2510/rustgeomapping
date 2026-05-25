@@ -11,8 +11,6 @@ pub struct PointCloud {
     points: Vec<[f32; 3]>,
     ///The number of points present
     no_of_points: usize,
-    ///The timestamp of when the pointcloud was captured (relative to when the camera started)
-    rel_timestamp: f64,
     ///The timestamp of when the pointcloud was captured (relative to the epoch)
     global_timestamp: DateTime<Utc>,
     ///The name of the file the pointcloud was loaded from (if loaded)
@@ -21,14 +19,13 @@ pub struct PointCloud {
 
 impl PointCloud {
     ///Create a pointcloud from a list of points
-    pub fn create_from_list(pnts: Vec<[f32; 3]>, timestamp: f64) -> Self {
+    pub fn create_from_list(pnts: Vec<[f32; 3]>,) -> Self {
         //Calculate the number of points
         let no_of_points = pnts.len();
 
         Self {
             points: pnts,
             no_of_points,
-            rel_timestamp: timestamp,
             global_timestamp: Utc::now(),
             filename: None,
         }
@@ -36,8 +33,7 @@ impl PointCloud {
 
     ///Create a pointcloud from a list of vertices
     pub fn create_from_iter(
-        vertices: Vec<[f32; 3]>,
-        timestamp: f64,
+        vertices: Vec<[f32; 3]>
     ) -> Result<Self, anyhow::Error> {
         let mut points: Vec<[f32; 3]> = vec![];
         let mut no_of_points = 0;
@@ -55,7 +51,6 @@ impl PointCloud {
         Ok(Self {
             points,
             no_of_points,
-            rel_timestamp: timestamp,
             global_timestamp: Utc::now(),
             filename: None,
         })
@@ -102,8 +97,6 @@ impl PointCloud {
         Ok(Self {
             points,
             no_of_points,
-            //Relative timestamp is -1.0 because there is no reference start time
-            rel_timestamp: -1.0,
             global_timestamp,
             filename: Some(fpath),
         })

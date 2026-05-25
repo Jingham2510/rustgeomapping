@@ -6,7 +6,7 @@
 /// not help identify the underlying problem, i.e. the bandwidth of the connection.
 use anyhow::{Result, bail, ensure};
 use realsense_rust;
-use realsense_rust::frame::{ColorFrame, FrameEx, PointsFrame};
+use realsense_rust::frame::{ColorFrame, PointsFrame};
 use realsense_rust::pipeline::ActivePipeline;
 use realsense_rust::{
     config::Config,
@@ -83,7 +83,7 @@ impl RealsenseCam {
     }
 
     ///Return a raw xyz pointcloud from the camera
-    pub fn get_depth_pnts(&mut self, max_range: f32) -> Result<(Vec<[f32; 3]>, f64)> {
+    pub fn get_depth_pnts(&mut self, max_range: f32) -> Result<Vec<[f32; 3]>> {
         //Wait for a frame to arrive
         let frame = self.pipeline.wait(None)?;
         //Extract the depth frame
@@ -113,7 +113,7 @@ impl RealsenseCam {
             points.push(vertex)
         }
 
-        Ok((points, point_frame.timestamp()))
+        Ok(points)
     }
 
     ///Get a colour image from the realsense camera

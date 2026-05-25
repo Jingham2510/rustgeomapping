@@ -50,7 +50,7 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
         let pcl_info = self.cam.get_depth_pnts(MAX_RANGE)?;
 
         //Split the info into cloud and timestamp
-        PointCloud::create_from_iter(pcl_info.0, pcl_info.1)
+        PointCloud::create_from_iter(pcl_info)
     }
 }
 
