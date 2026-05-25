@@ -321,7 +321,7 @@ impl Heightmap {
         //Sweep through each cell and replace with the new map height
         for row in self.cells.iter_mut() {
             for col in row.iter_mut() {
-                *col = add_nan(*col, height_change);
+                *col = add_nan_f32(*col, height_change);
             }
         }
         self.max_updated = false;
@@ -570,38 +570,38 @@ impl Heightmap {
 
                 //Check the top row
                 if !t_edge_flag {
-                    total = add_nan(total, self.cells[(i - 1) as usize][j as usize]);
+                    total = add_nan_f32(total, self.cells[(i - 1) as usize][j as usize]);
                     cnt += 1;
 
                     if !l_edge_flag {
-                        total = add_nan(total, self.cells[(i - 1) as usize][(j - 1) as usize]);
+                        total = add_nan_f32(total, self.cells[(i - 1) as usize][(j - 1) as usize]);
                         cnt += 1;
                     }
                     if !r_edge_flag {
-                        total = add_nan(total, self.cells[(i - 1) as usize][(j + 1) as usize]);
+                        total = add_nan_f32(total, self.cells[(i - 1) as usize][(j + 1) as usize]);
                         cnt += 1;
                     }
                 }
                 //Check the middle row
                 if !l_edge_flag {
-                    total = add_nan(total, self.cells[i as usize][(j - 1) as usize]);
+                    total = add_nan_f32(total, self.cells[i as usize][(j - 1) as usize]);
                     cnt += 1;
                 }
                 if !r_edge_flag {
-                    total = add_nan(total, self.cells[i as usize][(j + 1) as usize]);
+                    total = add_nan_f32(total, self.cells[i as usize][(j + 1) as usize]);
                     cnt += 1;
                 }
 
                 //check the bottom row
                 if !b_edge_flag {
-                    total = add_nan(total, self.cells[(i + 1) as usize][j as usize]);
+                    total = add_nan_f32(total, self.cells[(i + 1) as usize][j as usize]);
                     cnt += 1;
                     if !l_edge_flag {
-                        total = add_nan(total, self.cells[(i + 1) as usize][(j - 1) as usize]);
+                        total = add_nan_f32(total, self.cells[(i + 1) as usize][(j - 1) as usize]);
                         cnt += 1;
                     }
                     if !r_edge_flag {
-                        total = add_nan(total, self.cells[(i + 1) as usize][(j + 1) as usize]);
+                        total = add_nan_f32(total, self.cells[(i + 1) as usize][(j + 1) as usize]);
                         cnt += 1;
                     }
                 }
@@ -926,13 +926,13 @@ fn trans_to_heightmap(
 }
 
 ///Adds a value (that could possibly be NaN) to a variable
-fn add_nan(var: f32, val: f32) -> f32 {
+fn add_nan_f32(var: f32, val: f32) -> f32 {
     //If the value is NaN just add nothing
     if val.is_nan() { var } else { var + val }
 }
 
 ///Subtracts a value (that could possibly be NaN) to a variable
-fn sub_nan(var: f32, val: f32) -> f32 {
+fn sub_nan_f32(var: f32, val: f32) -> f32 {
     //If the value is NaN just add nothing
-    add_nan(var, -val)
+    add_nan_f32(var, -val)
 }
