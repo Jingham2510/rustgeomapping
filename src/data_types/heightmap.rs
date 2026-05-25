@@ -7,9 +7,9 @@ use std::io::{BufRead, BufReader, Write};
 #[derive(Clone)]
 pub struct Heightmap {
     ///Number of pixel rows
-    height: u32,
+    height: usize,
     ///Number of pixel columns
-    width: u32,
+    width: usize,
 
     ///The number of cells present in the heightmap
     pub no_of_cells: u32,
@@ -25,9 +25,9 @@ pub struct Heightmap {
     max_updated: bool,
 
     ///Cell location at minimum height
-    min_pos: (u32, u32),
+    min_pos: (usize, usize),
     ///Cell location at maximum height
-    max_pos: (u32, u32),
+    max_pos: (usize, usize),
 
     ///the 2d vector representing the cells
     cells: Vec<Vec<f32>>,
@@ -51,7 +51,7 @@ impl Default for Heightmap {
 //Map tools - including display and modification etc
 impl Heightmap {
     ///Create a new empty heightmap
-    pub fn new(width: u32, height: u32) -> Self {
+    pub fn new(width: usize, height: usize) -> Self {
         //No filename as is a new object
         let filename = "No filepath".to_string();
 
@@ -59,7 +59,7 @@ impl Heightmap {
         Self {
             height,
             width,
-            no_of_cells: height * width,
+            no_of_cells: height as u32 * width as u32,
             cells: vec![vec![0.0; height as usize]; width as usize],
             min: 999.0,
             max: -999.0,
@@ -76,8 +76,8 @@ impl Heightmap {
     ///Create a heightmap from a pointcloud (takes ownership of pcl object)
     pub fn create_from_pcl(
         pcl: PointCloud,
-        width: u32,
-        height: u32,
+        width: usize,
+        height: usize,
     ) -> Result<Self, anyhow::Error> {
         //create the filename from the relative timestamp
         let filename = format!("created from pcl- {}", pcl.timestamp());
@@ -102,7 +102,7 @@ impl Heightmap {
             Ok(Self {
                 height,
                 width,
-                no_of_cells: height * width,
+                no_of_cells: height as u32 * width as u32,
                 min: 999.0,
                 max: -999.0,
                 min_updated: false,
@@ -122,8 +122,8 @@ impl Heightmap {
     ///Create a heightmap from a pointcloud without consuming it
     pub fn create_using_pcl_ref(
         pcl: &PointCloud,
-        width: u32,
-        height: u32,
+        width: usize,
+        height: usize,
     ) -> Result<Self, anyhow::Error> {
         //create the filename from the relative timestamp
         let filename = format!("created from pcl- {}", pcl.timestamp());
@@ -148,7 +148,7 @@ impl Heightmap {
             Ok(Self {
                 height,
                 width,
-                no_of_cells: height * width,
+                no_of_cells: height as u32 * width as u32,
                 min: 999.0,
                 max: -999.0,
                 min_updated: false,
@@ -183,8 +183,8 @@ impl Heightmap {
             bounds_res = bounds?
         }
 
-        let mut height = 0;
-        let mut width = 0;
+        let mut height: usize = 0;
+        let mut width: usize = 0;
         let mut width_set = false;
 
         let mut cells: Vec<Vec<f32>> = vec![];
@@ -216,7 +216,7 @@ impl Heightmap {
         Ok(Self {
             height,
             width,
-            no_of_cells: height * width,
+            no_of_cells: height as u32 * width as u32,
             min: 999.0,
             max: -999.0,
             min_updated: false,
@@ -233,14 +233,18 @@ impl Heightmap {
     ///Creates a heightmap from a given pcl file
     pub fn create_from_pcl_file(
         filepath: String,
-        width: u32,
-        height: u32,
+        width: usize,
+        height: usize,
     ) -> Result<Self, anyhow::Error> {
         //Load the pcl file
         let pcl = PointCloud::create_from_file(filepath)?;
 
         //Turn the pcl into a heightmap and return it
         Heightmap::create_from_pcl(pcl, width, height)
+    }
+
+    pub fn cells(&self) -> Vec<Vec<f32>> {
+        self.cells.clone()
     }
 
     ///Print the value contained in each cell
@@ -254,7 +258,7 @@ impl Heightmap {
     }
 
     ///Get the height for a given cell
-    pub fn get_cell_height(&self, x: u32, y: u32) -> Result<f32, anyhow::Error> {
+    pub fn get_cell_height(&self, x: usize, y: usize) -> Result<f32, anyhow::Error> {
         if x > self.width || y > self.height {
             bail!("Warning - attempting to read from cell that doesnt exist!");
         }
@@ -265,8 +269,8 @@ impl Heightmap {
     ///Set the height of a given cell
     pub fn set_cell_height(
         &mut self,
-        x: u32,
-        y: u32,
+        x: usize,
+        y: usize,
         new_height: f32,
     ) -> Result<(), anyhow::Error> {
         if x > self.width || y > self.height {
@@ -298,6 +302,14 @@ impl Heightmap {
     }
     pub fn upper_coord_bounds(&self) -> [f32; 2] {
         self.upper_coord_bounds
+    }
+
+    pub fn set_lower_coord_bounds(&mut self, new: [f32; 2]) {
+        self.lower_coord_bounds = new;
+    }
+
+    pub fn set_upper_coord_bounds(&mut self, new: [f32; 2]) {
+        self.upper_coord_bounds = new;
     }
 
     ///Set the height of all cells
@@ -334,7 +346,7 @@ impl Heightmap {
         let mut skip_first_row = true;
         let mut skip_first_column = true;
 
-        let mut max_pos: (u32, u32) = (0, 0);
+        let mut max_pos: (usize, usize) = (0, 0);
 
         //Check whether a new maximum is required
         if !self.max_updated {
@@ -355,7 +367,7 @@ impl Heightmap {
 
                     if col > &mut new_max {
                         new_max = *col;
-                        max_pos = (i as u32, j as u32);
+                        max_pos = (i, j);
                     }
                 }
             }
@@ -377,7 +389,7 @@ impl Heightmap {
             let mut skip_first_column = true;
 
             let mut new_min: f32 = 999.0;
-            let mut min_pos: (u32, u32) = (0, 0);
+            let mut min_pos: (usize, usize) = (0, 0);
 
             //Check every value to see if its the smallest
             for (i, row) in self.cells.iter_mut().enumerate() {
@@ -397,7 +409,7 @@ impl Heightmap {
 
                     if col < &mut new_min {
                         new_min = *col;
-                        min_pos = (i as u32, j as u32);
+                        min_pos = (i, j);
                     }
                 }
             }
@@ -451,11 +463,11 @@ impl Heightmap {
     }
 
     ///Width getter
-    pub fn width(&self) -> u32 {
+    pub fn width(&self) -> usize {
         self.width
     }
     ///Height getter
-    pub fn height(&self) -> u32 {
+    pub fn height(&self) -> usize {
         self.height
     }
 
@@ -492,7 +504,7 @@ impl Heightmap {
     }
 
     ///Calculates the middle coordinates of a given cell (based on the upper/lower bounds)
-    pub fn calc_cell_mid_pnt(&self, n: u32, m: u32) -> Result<[f32; 2], anyhow::Error> {
+    pub fn calc_cell_mid_pnt(&self, n: usize, m: usize) -> Result<[f32; 2], anyhow::Error> {
         if n >= self.width {
             bail!("Error - out of width bounds!")
         }
@@ -674,7 +686,7 @@ impl Heightmap {
             bail!("Only one edge detected!")
         }
 
-        if self.max_pos.0 > second_edge as u32 || self.max_pos.0 < first_edge as u32 {
+        if self.max_pos.0 > second_edge || self.max_pos.0 < first_edge {
             bail!("Invalid edge setup - deepest point outside edges")
         }
 
@@ -699,81 +711,13 @@ impl Heightmap {
         }
 
         let slope = if max_row[second_edge] >= max_row[first_edge] {
-            depth / ((second_edge as u32 - self.max_pos.0) as f32 * bin_size)
+            depth / ((second_edge - self.max_pos.0) as f32 * bin_size)
         } else {
-            depth / ((self.max_pos.0 - first_edge as u32) as f32 * bin_size)
+            depth / ((self.max_pos.0 - first_edge) as f32 * bin_size)
         };
 
         Ok((depth, width, slope))
     }
-}
-
-///Compares a given map with a desired map and outputs a map of height differences
-pub fn comp_maps(
-    curr_map: &Heightmap,
-    desired_map: &Heightmap,
-) -> Result<Heightmap, anyhow::Error> {
-    //Check the maps are the same size - if not exit
-    if curr_map.height != desired_map.height || curr_map.width != desired_map.width {
-        bail!("Warning - Maps are not the same size - cannot be compared");
-    }
-
-    //Create a new empty map that holds the difference
-    let mut diff_map: Heightmap = Heightmap::new(curr_map.width, curr_map.height);
-
-    //Sweep through each cell and replace with the new map height
-    for (m, row) in diff_map.cells.iter_mut().enumerate() {
-        for (n, col) in row.iter_mut().enumerate() {
-            //First index is the row number (i.e. the height)
-            let diff = curr_map.cells[m][n] - desired_map.cells[m][n];
-
-            //Not entirely sure why y and x are the opposite way rounds but hey ho
-            *col = diff;
-        }
-    }
-
-    Ok(diff_map)
-}
-
-//General heightmap statistical functions
-
-///Takes a list of heightmaps that are the same size and averages them
-pub fn average_heightmaps(
-    hmap_list: &[Heightmap],
-    lower_bounds: [f32; 2],
-    upper_bounds: [f32; 2],
-) -> Heightmap {
-    //Create an empty heightmap the same size as the heightmaps in the list
-    let mut avg_hmap = Heightmap::new(hmap_list[0].width(), hmap_list[0].height());
-
-    //Go through each point in the empty heightmap and take the mean of the genned heightmaps
-    for (y, row) in avg_hmap.cells.iter_mut().enumerate() {
-        for (x, val) in row.iter_mut().enumerate() {
-            let mut total_val = 0.0;
-            let mut valid_pnt_cnt = 0;
-            for hmap in hmap_list {
-                let cell_val = hmap.cells[y][x];
-
-                //Ignore nan valued cells - dont diminish mean error
-                if cell_val.is_nan() {
-                    continue;
-                }
-                total_val += cell_val;
-                valid_pnt_cnt += 1;
-            }
-
-            if total_val == 0.0 {
-                *val = f32::NAN
-            } else {
-                *val = total_val / valid_pnt_cnt as f32;
-            }
-        }
-    }
-
-    avg_hmap.lower_coord_bounds = lower_bounds;
-    avg_hmap.upper_coord_bounds = upper_bounds;
-
-    avg_hmap
 }
 
 ///A selection of different intensity schemas for generating the 2.5D maps from 3D data
@@ -786,7 +730,7 @@ pub enum MapGenOpt {
 }
 
 ///Transforms 3 point data into a 2.5d heightmap ( where the 3rd data point is the "height"/intensity)
-fn trans_to_heightmap(
+pub fn trans_to_heightmap(
     data: Vec<[f32; 3]>,
     width: usize,
     height: usize,
