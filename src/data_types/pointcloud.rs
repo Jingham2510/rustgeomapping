@@ -8,7 +8,7 @@ use std::io::{BufRead, BufReader, Write};
 ///A point cloud
 pub struct PointCloud {
     ///Vector of the points stored in xyz format
-    points: Vec<[f64; 3]>,
+    points: Vec<[f32; 3]>,
     ///The number of points present
     no_of_points: usize,
     ///The timestamp of when the pointcloud was captured (relative to when the camera started)
@@ -21,12 +21,36 @@ pub struct PointCloud {
 
 impl PointCloud {
     ///Create a pointcloud from a list of points
-    pub fn create_from_list(pnts: Vec<[f64; 3]>, timestamp: f64) -> Self {
+    pub fn create_from_list(pnts: Vec<[f32; 3]>, timestamp: f64) -> Self {
         //Calculate the number of points
         let no_of_points = pnts.len();
 
         Self {
             points: pnts,
+            no_of_points,
+            rel_timestamp: timestamp,
+            global_timestamp: Utc::now(),
+            filename: None,
+        }
+    }
+
+    ///Create a pointcloud from a list of vertices
+    pub fn create_from_iter(vertex: &[[f32; 3]], timestamp: f64) -> Self {
+        let mut points: Vec<[f32; 3]> = vec![];
+        let mut no_of_points = 0;
+
+        for vertex in vertex.iter() {
+            //check if the point is valid - if not ignore it
+            if vertex[2] == 0.0 || vertex[2] > 2.0 {
+                continue;
+            }
+
+            points.push([vertex[0] as f32, vertex[1] as f32, vertex[2] as f32]);
+            no_of_points += 1;
+        }
+
+        Self {
+            points,
             no_of_points,
             rel_timestamp: timestamp,
             global_timestamp: Utc::now(),
@@ -60,7 +84,7 @@ impl PointCloud {
 
         for line in line_reader.lines() {
             //Create empty point
-            let mut pnt: [f64; 3] = [f64::NAN, f64::NAN, f64::NAN];
+            let mut pnt: [f32; 3] = [f32::NAN, f32::NAN, f32::NAN];
 
             //Delimit the line based on commas
             for (cnt, token) in line?.split(",").enumerate() {
@@ -83,12 +107,12 @@ impl PointCloud {
     }
 
     ///Get the points in the point cloud without destroying the cloud
-    pub fn points(&self) -> Vec<[f64; 3]> {
+    pub fn points(&self) -> Vec<[f32; 3]> {
         self.points.clone()
     }
 
     ///Get the points in the point cloud whilst consuming the cloud
-    pub fn consume_points(self) -> Vec<[f64; 3]> {
+    pub fn consume_points(self) -> Vec<[f32; 3]> {
         self.points
     }
 
@@ -114,12 +138,12 @@ impl PointCloud {
 
     ///Calculate the xy bounds of the pointcloud (rectangular)
     ///Assumes z is the height
-    pub fn get_bounds(&self) -> [f64; 4] {
+    pub fn get_bounds(&self) -> [f32; 4] {
         //Predefine the values we are interested in
-        let mut x_min: f64 = 9999.0;
-        let mut y_min: f64 = 9999.0;
-        let mut x_max: f64 = -9999.0;
-        let mut y_max: f64 = -9999.0;
+        let mut x_min: f32 = 9999.0;
+        let mut y_min: f32 = 9999.0;
+        let mut x_max: f32 = -9999.0;
+        let mut y_max: f32 = -9999.0;
 
         //Check each point to if it escapes the set bounds
         //If points are sorted beforehand, no need! but sorting might take a while - and how do you sort?
@@ -144,7 +168,7 @@ impl PointCloud {
     }
 
     ///Calculate the xy plane area of the pcl
-    pub fn get_xy_area(&self) -> f64 {
+    pub fn get_xy_area(&self) -> f32 {
         let bounds = self.get_bounds();
 
         ((bounds[1] - bounds[0]) * (bounds[3] - bounds[2])).abs()
@@ -155,7 +179,7 @@ impl PointCloud {
     ///Yaw - Z
     ///Pitch - Y
     ///Roll - X
-    pub fn rotate(&mut self, yaw: f64, pitch: f64, roll: f64) {
+    pub fn rotate(&mut self, yaw: f32, pitch: f32, roll: f32) {
         //Precalc the trig
         let yaw_c = yaw.cos();
         let yaw_s = yaw.sin();
@@ -195,7 +219,7 @@ impl PointCloud {
     }
 
     ///Translate a pointcloud with xyz coords
-    pub fn translate(&mut self, x: f64, y: f64, z: f64) {
+    pub fn translate(&mut self, x: f32, y: f32, z: f32) {
         //Iterate through every point
         for pnt in self.points.iter_mut() {
             //Transform the points using addition
@@ -206,7 +230,7 @@ impl PointCloud {
     }
 
     ///Transform a pointcloud by using a homogenous matrix
-    pub fn transform_with(&mut self, tmat: &Matrix4<f64>) {
+    pub fn transform_with(&mut self, tmat: &Matrix4<f32>) {
         //Transform each point
         for pnt in self.points.iter_mut() {
             //Pad a 0 for vlaid matrix multiplication
@@ -222,7 +246,7 @@ impl PointCloud {
     }
 
     ///Scale every point by the same value
-    pub fn scale_even(&mut self, scale_val: f64) {
+    pub fn scale_even(&mut self, scale_val: f32) {
         //Iterate through every point
         for pnt in self.points.iter_mut() {
             //Transform the points using addition
@@ -234,10 +258,10 @@ impl PointCloud {
 
     ///Filter a pointcloud by specifying the valid bounds
     ///Inclusive of points that lie on the boundary
-    pub fn crop(&mut self, min_x: f64, max_x: f64, min_y: f64, max_y: f64, min_z: f64, max_z: f64) {
+    pub fn crop(&mut self, min_x: f32, max_x: f32, min_y: f32, max_y: f32, min_z: f32, max_z: f32) {
         let pnts = self.points();
 
-        let mut new_pnts: Vec<[f64; 3]> = vec![];
+        let mut new_pnts: Vec<[f32; 3]> = vec![];
 
         for pnt in pnts {
             //Drop all the points that sit outside the bounds

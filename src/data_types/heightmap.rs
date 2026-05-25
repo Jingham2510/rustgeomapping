@@ -15,9 +15,9 @@ pub struct Heightmap {
     pub no_of_cells: u32,
 
     ///The point defined minimum cell height
-    min: f64,
+    min: f32,
     ///The point defined maximum cell height
-    max: f64,
+    max: f32,
 
     ///State that determines whether the minimum height needs to be checked
     min_updated: bool,
@@ -30,12 +30,12 @@ pub struct Heightmap {
     max_pos: (u32, u32),
 
     ///the 2d vector representing the cells
-    cells: Vec<Vec<f64>>,
+    cells: Vec<Vec<f32>>,
 
     ///The pointcloud real-world lower bounds the hieghtmap is constructed from
-    lower_coord_bounds: [f64; 2],
+    lower_coord_bounds: [f32; 2],
     ///The pointcloud real-world upper bounds the hieghtmap is constructed from
-    upper_coord_bounds: [f64; 2],
+    upper_coord_bounds: [f32; 2],
 
     ///Store the filepath for usage in analysis
     pub filename: String,
@@ -177,7 +177,7 @@ impl Heightmap {
 
         let bounds = Self::extract_bounds(first_line);
 
-        let mut bounds_res: [f64; 4] = [f64::NAN, f64::NAN, f64::NAN, f64::NAN];
+        let mut bounds_res: [f32; 4] = [f32::NAN, f32::NAN, f32::NAN, f32::NAN];
 
         if bounds.is_ok() {
             bounds_res = bounds?
@@ -187,11 +187,11 @@ impl Heightmap {
         let mut width = 0;
         let mut width_set = false;
 
-        let mut cells: Vec<Vec<f64>> = vec![];
+        let mut cells: Vec<Vec<f32>> = vec![];
         //Go through each cell and update the
         for line in line_reader.lines() {
             //Create the empty row
-            let mut row: Vec<f64> = vec![];
+            let mut row: Vec<f32> = vec![];
 
             //Split via comma then iterate
             for token in line?.split(",") {
@@ -200,7 +200,7 @@ impl Heightmap {
                         width += 1;
                     }
 
-                    row.push(token.parse::<f64>()?);
+                    row.push(token.parse::<f32>()?);
                 }
             }
 
@@ -254,7 +254,7 @@ impl Heightmap {
     }
 
     ///Get the height for a given cell
-    pub fn get_cell_height(&self, x: u32, y: u32) -> Result<f64, anyhow::Error> {
+    pub fn get_cell_height(&self, x: u32, y: u32) -> Result<f32, anyhow::Error> {
         if x > self.width || y > self.height {
             bail!("Warning - attempting to read from cell that doesnt exist!");
         }
@@ -267,7 +267,7 @@ impl Heightmap {
         &mut self,
         x: u32,
         y: u32,
-        new_height: f64,
+        new_height: f32,
     ) -> Result<(), anyhow::Error> {
         if x > self.width || y > self.height {
             bail!("Warning - attempting to write to cell that doesnt exist!");
@@ -293,10 +293,10 @@ impl Heightmap {
         Ok(())
     }
 
-    pub fn lower_coord_bounds(&self) -> [f64; 2] {
+    pub fn lower_coord_bounds(&self) -> [f32; 2] {
         self.lower_coord_bounds
     }
-    pub fn upper_coord_bounds(&self) -> [f64; 2] {
+    pub fn upper_coord_bounds(&self) -> [f32; 2] {
         self.upper_coord_bounds
     }
 
@@ -317,7 +317,7 @@ impl Heightmap {
     }
 
     ///Modify the height of every cell by a specified value
-    pub fn offset_map(&mut self, height_change: f64) {
+    pub fn offset_map(&mut self, height_change: f32) {
         //Sweep through each cell and replace with the new map height
         for row in self.cells.iter_mut() {
             for col in row.iter_mut() {
@@ -329,7 +329,7 @@ impl Heightmap {
     }
 
     ///Get the maximum cell distance
-    fn get_max(&mut self) -> f64 {
+    fn get_max(&mut self) -> f32 {
         //Skip the first as they contain plenty of nans
         let mut skip_first_row = true;
         let mut skip_first_column = true;
@@ -338,7 +338,7 @@ impl Heightmap {
 
         //Check whether a new maximum is required
         if !self.max_updated {
-            let mut new_max: f64 = -999.0;
+            let mut new_max: f32 = -999.0;
 
             //Check every value to see if its the largest
             for (i, row) in self.cells.iter_mut().enumerate() {
@@ -369,14 +369,14 @@ impl Heightmap {
     }
 
     ///Get the minimum cell distance
-    fn get_min(&mut self) -> f64 {
+    fn get_min(&mut self) -> f32 {
         //Check whether a new minimum calc is required
         if !self.min_updated {
             //Skip the first as they contain plenty of nans
             let mut skip_first_row = true;
             let mut skip_first_column = true;
 
-            let mut new_min: f64 = 999.0;
+            let mut new_min: f32 = 999.0;
             let mut min_pos: (u32, u32) = (0, 0);
 
             //Check every value to see if its the smallest
@@ -410,8 +410,8 @@ impl Heightmap {
     }
 
     ///Returns the flattened cells (i.e. every single cell in a single vector)
-    pub fn get_flattened_cells(&self) -> Result<Vec<f64>, anyhow::Error> {
-        let mut cell_list: Vec<f64> = vec![];
+    pub fn get_flattened_cells(&self) -> Result<Vec<f32>, anyhow::Error> {
+        let mut cell_list: Vec<f32> = vec![];
 
         for x in 0..(self.width - 1) as usize {
             for y in 0..(self.height - 1) as usize {
@@ -460,8 +460,8 @@ impl Heightmap {
     }
 
     ///Extracts the bounds from a string
-    fn extract_bounds(bnd_line: String) -> Result<[f64; 4], anyhow::Error> {
-        let mut bounds: [f64; 4] = [f64::NAN, f64::NAN, f64::NAN, f64::NAN];
+    fn extract_bounds(bnd_line: String) -> Result<[f32; 4], anyhow::Error> {
+        let mut bounds: [f32; 4] = [f32::NAN, f32::NAN, f32::NAN, f32::NAN];
 
         let mut bnd_cnt = 0;
 
@@ -492,7 +492,7 @@ impl Heightmap {
     }
 
     ///Calculates the middle coordinates of a given cell (based on the upper/lower bounds)
-    pub fn calc_cell_mid_pnt(&self, n: u32, m: u32) -> Result<[f64; 2], anyhow::Error> {
+    pub fn calc_cell_mid_pnt(&self, n: u32, m: u32) -> Result<[f32; 2], anyhow::Error> {
         if n >= self.width {
             bail!("Error - out of width bounds!")
         }
@@ -500,16 +500,16 @@ impl Heightmap {
             bail!("Error - out of height bounds!");
         }
 
-        let mut mid_pnt: [f64; 2] = [f64::NAN, f64::NAN];
+        let mut mid_pnt: [f32; 2] = [f32::NAN, f32::NAN];
 
         let cell_width =
-            (self.upper_coord_bounds[0] - self.lower_coord_bounds[0]).abs() / self.width as f64;
+            (self.upper_coord_bounds[0] - self.lower_coord_bounds[0]).abs() / self.width as f32;
         let cell_height =
-            (self.upper_coord_bounds[1] - self.lower_coord_bounds[1]).abs() / self.width as f64;
+            (self.upper_coord_bounds[1] - self.lower_coord_bounds[1]).abs() / self.width as f32;
 
         //Calc the mid point with the offset
-        mid_pnt[0] = (n as f64 * cell_width) + self.lower_coord_bounds[0];
-        mid_pnt[1] = (m as f64 * cell_height) + self.lower_coord_bounds[1];
+        mid_pnt[0] = (n as f32 * cell_width) + self.lower_coord_bounds[0];
+        mid_pnt[1] = (m as f32 * cell_height) + self.lower_coord_bounds[1];
 
         Ok(mid_pnt)
     }
@@ -606,7 +606,7 @@ impl Heightmap {
                     }
                 }
 
-                self.cells[i as usize][j as usize] = total / (cnt as f64);
+                self.cells[i as usize][j as usize] = total / (cnt as f32);
             }
         }
     }
@@ -615,10 +615,10 @@ impl Heightmap {
     /// Returned as (depth, width, (slope median, slope mode))
     /// Assumes only two edges (i.e. a simple trough)
     /// Assumes that the deep point is in the middle
-    pub fn calc_simple_feature(&mut self) -> Result<(f64, f64, f64), anyhow::Error> {
+    pub fn calc_simple_feature(&mut self) -> Result<(f32, f32, f32), anyhow::Error> {
         //Calculate the bin size -- Assuming square so only need one set of bounds
         let bin_size =
-            (self.upper_coord_bounds[0] - self.lower_coord_bounds[0]) / (self.width as f64 - 1.0);
+            (self.upper_coord_bounds[0] - self.lower_coord_bounds[0]) / (self.width as f32 - 1.0);
 
         //Get the lowest point and its row (which is actually the max - furhter away from heightmap)
         if !self.max_updated {
@@ -631,8 +631,8 @@ impl Heightmap {
         let max_row = self.cells[max_row as usize].clone();
 
         //Take edge point as highest and use to calculate depth of feature
-        const EDGE_THRESHOLD: f64 = 0.0005;
-        const EDGE_HIGH_THRESHHOLD: f64 = 0.01;
+        const EDGE_THRESHOLD: f32 = 0.0005;
+        const EDGE_HIGH_THRESHHOLD: f32 = 0.01;
         let mut first_edge: usize = 0;
         let mut second_edge: usize = 0;
 
@@ -688,8 +688,8 @@ impl Heightmap {
 
         //Calculate the width by doing (number of bins between edges multiplied by bin size)
 
-        let width: f64 = if second_edge > first_edge {
-            ((second_edge - first_edge) as f64) * bin_size
+        let width: f32 = if second_edge > first_edge {
+            ((second_edge - first_edge) as f32) * bin_size
         } else {
             bail!("Invalid edge config")
         };
@@ -699,9 +699,9 @@ impl Heightmap {
         }
 
         let slope = if max_row[second_edge] >= max_row[first_edge] {
-            depth / ((second_edge as u32 - self.max_pos.0) as f64 * bin_size)
+            depth / ((second_edge as u32 - self.max_pos.0) as f32 * bin_size)
         } else {
-            depth / ((self.max_pos.0 - first_edge as u32) as f64 * bin_size)
+            depth / ((self.max_pos.0 - first_edge as u32) as f32 * bin_size)
         };
 
         Ok((depth, width, slope))
@@ -740,8 +740,8 @@ pub fn comp_maps(
 ///Takes a list of heightmaps that are the same size and averages them
 pub fn average_heightmaps(
     hmap_list: &[Heightmap],
-    lower_bounds: [f64; 2],
-    upper_bounds: [f64; 2],
+    lower_bounds: [f32; 2],
+    upper_bounds: [f32; 2],
 ) -> Heightmap {
     //Create an empty heightmap the same size as the heightmaps in the list
     let mut avg_hmap = Heightmap::new(hmap_list[0].width(), hmap_list[0].height());
@@ -763,9 +763,9 @@ pub fn average_heightmaps(
             }
 
             if total_val == 0.0 {
-                *val = f64::NAN
+                *val = f32::NAN
             } else {
-                *val = total_val / valid_pnt_cnt as f64;
+                *val = total_val / valid_pnt_cnt as f32;
             }
         }
     }
@@ -787,15 +787,15 @@ pub enum MapGenOpt {
 
 ///Transforms 3 point data into a 2.5d heightmap ( where the 3rd data point is the "height"/intensity)
 fn trans_to_heightmap(
-    data: Vec<[f64; 3]>,
+    data: Vec<[f32; 3]>,
     width: usize,
     height: usize,
-    total_width: f64,
-    total_height: f64,
-    min_x_bnd: f64,
-    min_y_bnd: f64,
+    total_width: f32,
+    total_height: f32,
+    min_x_bnd: f32,
+    min_y_bnd: f32,
     opt: MapGenOpt,
-) -> Result<Vec<Vec<f64>>, anyhow::Error> {
+) -> Result<Vec<Vec<f32>>, anyhow::Error> {
     //Create the empty cell matrix
     //NaN spots are areas with no information
     let mut cells_pnt_list = vec![vec![vec![]; width]; height];
@@ -811,7 +811,7 @@ fn trans_to_heightmap(
 
         //Find the horizontal pos
         while !n_fnd {
-            if pnt[0] <= (((total_width / width as f64) * n as f64) + min_x_bnd) {
+            if pnt[0] <= (((total_width / width as f32) * n as f32) + min_x_bnd) {
                 n_fnd = true;
             } else {
                 n += 1;
@@ -825,7 +825,7 @@ fn trans_to_heightmap(
 
         //Find the vertical pos
         while !m_fnd {
-            if pnt[1] <= (((total_height / height as f64) * m as f64) + min_y_bnd) {
+            if pnt[1] <= (((total_height / height as f32) * m as f32) + min_y_bnd) {
                 m_fnd = true;
             } else {
                 m += 1;
@@ -841,18 +841,18 @@ fn trans_to_heightmap(
     }
 
     //Calculate the height of each cell based on the chosen hmap option
-    let mut cells: Vec<Vec<f64>> = vec![vec![]; width];
+    let mut cells: Vec<Vec<f32>> = vec![vec![]; width];
 
     //Iterate through each point list
     for (i, pnt_list) in cells_pnt_list.iter_mut().enumerate() {
         for pnts in pnt_list {
             //If the cell is NAN - keep it as a null cell
             if pnts.iter().all(|x| x.is_nan()) || pnts.is_empty() {
-                cells[i].push(f64::NAN);
+                cells[i].push(f32::NAN);
                 continue;
             }
 
-            let mut pnt_to_add: f64 = 0.0;
+            let mut pnt_to_add: f32 = 0.0;
 
             //Determine the value of the cell bsaed on the provided heightmap options
             match opt {
@@ -871,12 +871,12 @@ fn trans_to_heightmap(
                     }
 
                     //Divide by the length of the list
-                    pnt_to_add /= cnt as f64;
+                    pnt_to_add /= cnt as f32;
                 }
 
                 MapGenOpt::Median => {
                     //Sort the list - unstable because we dont care about initial order of indices and also its faster
-                    pnts.sort_unstable_by(f64::total_cmp);
+                    pnts.sort_unstable_by(f32::total_cmp);
 
                     if pnts.len() == 1 {
                         pnt_to_add = pnts[0]
@@ -926,13 +926,13 @@ fn trans_to_heightmap(
 }
 
 ///Adds a value (that could possibly be NaN) to a variable
-fn add_nan(var: f64, val: f64) -> f64 {
+fn add_nan(var: f32, val: f32) -> f32 {
     //If the value is NaN just add nothing
     if val.is_nan() { var } else { var + val }
 }
 
 ///Subtracts a value (that could possibly be NaN) to a variable
-fn sub_nan(var: f64, val: f64) -> f64 {
+fn sub_nan(var: f32, val: f32) -> f32 {
     //If the value is NaN just add nothing
     add_nan(var, -val)
 }
