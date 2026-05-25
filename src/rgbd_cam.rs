@@ -1,3 +1,4 @@
+use crate::backend::realsense::realsense_cam::{self, RealsenseCam};
 ///High levels functions used to generate information from the RGBD cameras
 use crate::data_types::pointcloud::PointCloud;
 use anyhow::bail;
@@ -16,10 +17,33 @@ pub struct DepthCam<T> {
 
 ///Connect to the camera
 pub trait Connect<T> {
-    fn connect() -> DepthCam<T>;
+    fn connect(id: u32) -> Result<DepthCam<T>, anyhow::Error>;
 }
 
 ///Take a pointcloud from the camera
 pub trait GetPointCloud<T> {
-    fn get_pointcloud(depth_cam: &DepthCam<T>) -> Result<PointCloud, anyhow::Error>;
+    fn get_pointcloud(&self) -> Result<PointCloud, anyhow::Error>;
+}
+
+impl Connect<RealsenseCam> for DepthCam<RealsenseCam> {
+    fn connect(id: u32) -> Result<DepthCam<RealsenseCam>, anyhow::Error> {
+        let realsense_cam = RealsenseCam::initialise_raw(id as usize)?;
+
+        Ok(DepthCam {
+            cam: realsense_cam,
+            cam_type: CamType::Realsense,
+            id,
+        })
+    }
+}
+
+impl GetPointCloud<RealsenseCam> for DepthCam<RealsenseCam> {
+    fn get_pointcloud(&self) -> Result<PointCloud, anyhow::Error> {
+        const MAX_RANGE: f32 = 2.0;
+
+        let pcl_info = self.cam.get_depth_pnts(MAX_RANGE);
+
+        //Split the info into cloud and timestamp
+        PointCloud::create_from_iter(pcl_info.0, pcl_info.1)
+    }
 }

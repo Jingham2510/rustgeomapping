@@ -35,7 +35,7 @@ impl PointCloud {
     }
 
     ///Create a pointcloud from a list of vertices
-    pub fn create_from_iter(vertex: &[[f32; 3]], timestamp: f64) -> Self {
+    pub fn create_from_iter(vertex: &[[f32; 3]], timestamp: f64) -> Result<Self, anyhow::Error> {
         let mut points: Vec<[f32; 3]> = vec![];
         let mut no_of_points = 0;
 
@@ -49,13 +49,13 @@ impl PointCloud {
             no_of_points += 1;
         }
 
-        Self {
+        Ok(Self {
             points,
             no_of_points,
             rel_timestamp: timestamp,
             global_timestamp: Utc::now(),
             filename: None,
-        }
+        })
     }
 
     ///Create a pointcloud from a loaded file
