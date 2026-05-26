@@ -19,7 +19,9 @@ pub struct DepthCam<T> {
 impl fmt::Display for DepthCam<RealsenseCam> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Cam ID: {}", self.id)
+
     }
+
 }
 
 ///The minimum required traits for a depth camera to be useful
@@ -43,6 +45,7 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
     fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error> {
         const MAX_RANGE: f32 = 2.0;
+
 
         let pcl_info = self.cam.get_depth_pnts(MAX_RANGE)?;
 
