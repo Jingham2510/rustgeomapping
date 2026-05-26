@@ -5,25 +5,25 @@ use crate::data_types::pointcloud::PointCloud;
 use std::fmt;
 
 ///Available depth camera types
-#[derive(Debug)]
-enum CamType {
-    Realsense,
+pub enum CamType {
+    RealsenseCam(DepthCam<RealsenseCam>),
 }
 
 ///Generic depth camera implementation
+
 pub struct DepthCam<T> {
     cam: T,
-    cam_type: CamType,
     id: u32,
 }
 
 impl fmt::Display for DepthCam<RealsenseCam> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "TYPE: {:?} - ID: {}", self.cam_type, self.id)
+        write!(f, "Cam ID: {}", self.id)
     }
 }
 
 ///The minimum required traits for a depth camera to be useful
+
 pub trait Required<T> {
     ///Connect to the camera
     fn connect(id: u32) -> Result<DepthCam<T>, anyhow::Error>;
@@ -37,7 +37,6 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
         Ok(DepthCam {
             cam: realsense_cam,
-            cam_type: CamType::Realsense,
             id,
         })
     }
