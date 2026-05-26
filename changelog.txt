@@ -1,3 +1,7 @@
+
+V0.1.2 (26/05/26):
+-Implement camtypes take pointcloud for agnostic pointcloud capture
+
 V0.1.1 (26/05/26):
 -Modify CamTypes Enumeration such that the Camera struct is stored implicitly
 -Make CamTypes public
