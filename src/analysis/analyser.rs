@@ -1,6 +1,6 @@
 ///Analyses test results in the form of displaying heightmap results
 use crate::analysis::data_handler::DataHandler;
-use crate::data_types::heightmap::{Heightmap, MapGenOpt, trans_to_heightmap};
+use crate::data_types::heightmap::Heightmap;
 use crate::data_types::pointcloud::PointCloud;
 use anyhow::bail;
 use std::fs;
@@ -78,7 +78,7 @@ impl Analyser {
         if self.data_handler.is_some() {
             self.data_handler
                 .as_ref()
-                .expect("Failed to unwrap existing data handler")
+                .unwrap()
                 .get_traj_rect_bnds()
         } else {
             bail!("No data file associated with test");
@@ -252,7 +252,7 @@ impl Analyser {
         for identifier in identifiers.iter() {
             //Loda all the pointclouds with that identifier
             let mut curr_pcls: Vec<PointCloud> = self
-                .get_pcl_with_identifier(*identifier)
+                .get_pcl_with_identifier(identifier)
                 .expect("Failed to find identifier");
 
             //check that there are enough for the maxmimum average
@@ -326,7 +326,7 @@ impl Analyser {
         for (i, identifier) in identifiers.iter().enumerate() {
             //Loda all the pointclouds with that identifier
             let mut curr_pcls: Vec<PointCloud> = self
-                .get_pcl_with_identifier(*identifier)
+                .get_pcl_with_identifier(identifier)
                 .expect("Failed to find identifier");
 
             //check that there are enough for the maxmimum average
@@ -408,12 +408,12 @@ impl Analyser {
         let max_avg = *averages.iter().max().expect("Failed to get maximum") as i32;
 
         //For each identifier specified
-        for (i, identifier) in identifiers.iter().enumerate() {
+        for identifier in identifiers.iter() {
             let mut dist_stats: Vec<(usize, u32, f32, f32, u32)> = vec![];
 
             //Loda all the pointclouds with that identifier
             let mut curr_pcls: Vec<PointCloud> = self
-                .get_pcl_with_identifier(*identifier)
+                .get_pcl_with_identifier(identifier)
                 .expect("Failed to find identifier");
 
             //check that there are enough for the maxmimum average
@@ -440,7 +440,7 @@ impl Analyser {
                     cnt += 1;
 
                     if averages.contains(&cnt) {
-                        let mut curr_hmap = average_heightmaps(
+                        let curr_hmap = average_heightmaps(
                             &curr_hmaps,
                             curr_hmaps[0].lower_coord_bounds(),
                             curr_hmaps[0].upper_coord_bounds(),
@@ -469,12 +469,12 @@ impl Analyser {
                 .open(filepath)
                 .unwrap();
 
-            let csv_header = format!("resolution,average,mean_err,std.dev_err,no_of_nans\n");
-            file.write_all(csv_header.as_bytes());
+            let csv_header = "resolution,average,mean_err,std.dev_err,no_of_nans\n".to_string();
+            let _ = file.write_all(csv_header.as_bytes());
 
             for stat in dist_stats.iter() {
                 let stats_str = format!("{},{},{},{},{}\n", stat.0, stat.1, stat.2, stat.3, stat.4);
-                file.write_all(stats_str.as_bytes());
+                let _ = file.write_all(stats_str.as_bytes());
             }
 
             //Empty the current list
@@ -497,7 +497,7 @@ impl Analyser {
         for identifier in identifiers.iter() {
             //Loda all the pointclouds with that identifier
             let curr_pcls: Vec<PointCloud> = self
-                .get_pcl_with_identifier(*identifier)
+                .get_pcl_with_identifier(identifier)
                 .expect("Failed to find identifier");
 
             let mut avg_density = 0.0;
@@ -521,16 +521,17 @@ impl Analyser {
 
         let mut file = fs::OpenOptions::new()
             .write(true)
+            .truncate(true)
             .create(true)
             .open(filepath)
             .unwrap();
 
-        let csv_header = format!("distance,density\n");
-        file.write_all(csv_header.as_bytes());
+        let csv_header = "distance,density\n".to_string();
+        let _ = file.write_all(csv_header.as_bytes());
 
         for density in avg_densities.iter() {
             let stats_str = format!("{},{}\n", density.0, density.1);
-            file.write_all(stats_str.as_bytes());
+            let _ = file.write_all(stats_str.as_bytes());
         }
     }
 
@@ -551,8 +552,8 @@ impl Analyser {
             let mut features: Vec<(usize, u32, f32, f32, f32)> = vec![];
 
             //Loda all the pointclouds with that identifier
-            let mut curr_pcls: Vec<PointCloud> = self
-                .get_pcl_with_identifier(*identifier)
+            let curr_pcls: Vec<PointCloud> = self
+                .get_pcl_with_identifier(identifier)
                 .expect("Failed to find identifier");
 
             //check that there are enough for the maxmimum average
@@ -605,8 +606,8 @@ impl Analyser {
                 .unwrap();
 
             if i == 0 {
-                let csv_header = format!("distance,resolution,average,depth,width,slope avg\n");
-                file.write_all(csv_header.as_bytes());
+                let csv_header = "distance,resolution,average,depth,width,slope avg\n".to_string();
+                let _ = file.write_all(csv_header.as_bytes());
             }
 
             for feature in features.iter() {
@@ -614,7 +615,7 @@ impl Analyser {
                     "{},{},{},{},{},{}\n",
                     identifier, feature.0, feature.1, feature.2, feature.3, feature.4
                 );
-                file.write_all(stats_str.as_bytes());
+                let _ = file.write_all(stats_str.as_bytes());
             }
             //Empty the features vector
             features.clear();

@@ -60,7 +60,7 @@ impl Heightmap {
             height,
             width,
             no_of_cells: height as u32 * width as u32,
-            cells: vec![vec![0.0; height as usize]; width as usize],
+            cells: vec![vec![0.0; height]; width],
             min: 999.0,
             max: -999.0,
             min_updated: false,
@@ -91,8 +91,8 @@ impl Heightmap {
 
         if let Ok(cells) = trans_to_heightmap(
             pcl.consume_points(),
-            width as usize,
-            height as usize,
+            width,
+            height,
             total_width,
             total_height,
             bounds[0],
@@ -137,8 +137,8 @@ impl Heightmap {
 
         if let Ok(cells) = trans_to_heightmap(
             pcl.points(),
-            width as usize,
-            height as usize,
+            width,
+            height,
             total_width,
             total_height,
             bounds[0],
@@ -263,7 +263,7 @@ impl Heightmap {
             bail!("Warning - attempting to read from cell that doesnt exist!");
         }
 
-        Ok(self.cells[x as usize][y as usize])
+        Ok(self.cells[x][y])
     }
 
     ///Set the height of a given cell
@@ -277,7 +277,7 @@ impl Heightmap {
             bail!("Warning - attempting to write to cell that doesnt exist!");
         }
 
-        self.cells[x as usize][y as usize] = new_height;
+        self.cells[x][y] = new_height;
 
         //Check that the cell doesnt store the min or the max
         if (x, y) == self.max_pos {
@@ -425,8 +425,8 @@ impl Heightmap {
     pub fn get_flattened_cells(&self) -> Result<Vec<f32>, anyhow::Error> {
         let mut cell_list: Vec<f32> = vec![];
 
-        for x in 0..(self.width - 1) as usize {
-            for y in 0..(self.height - 1) as usize {
+        for x in 0..(self.width - 1) {
+            for y in 0..(self.height - 1) {
                 cell_list.push(self.cells[x][y]);
             }
         }
@@ -564,7 +564,7 @@ impl Heightmap {
 
             //Go through every pixel in each row
             for j in 0..self.width {
-                if !self.cells[i as usize][j as usize].is_nan() {
+                if !self.cells[i][j].is_nan() {
                     continue;
                 }
 
@@ -582,43 +582,43 @@ impl Heightmap {
 
                 //Check the top row
                 if !t_edge_flag {
-                    total = add_nan_f32(total, self.cells[(i - 1) as usize][j as usize]);
+                    total = add_nan_f32(total, self.cells[i - 1][j]);
                     cnt += 1;
 
                     if !l_edge_flag {
-                        total = add_nan_f32(total, self.cells[(i - 1) as usize][(j - 1) as usize]);
+                        total = add_nan_f32(total, self.cells[i - 1][j - 1]);
                         cnt += 1;
                     }
                     if !r_edge_flag {
-                        total = add_nan_f32(total, self.cells[(i - 1) as usize][(j + 1) as usize]);
+                        total = add_nan_f32(total, self.cells[i - 1][j + 1]);
                         cnt += 1;
                     }
                 }
                 //Check the middle row
                 if !l_edge_flag {
-                    total = add_nan_f32(total, self.cells[i as usize][(j - 1) as usize]);
+                    total = add_nan_f32(total, self.cells[i][j - 1]);
                     cnt += 1;
                 }
                 if !r_edge_flag {
-                    total = add_nan_f32(total, self.cells[i as usize][(j + 1) as usize]);
+                    total = add_nan_f32(total, self.cells[i][j + 1]);
                     cnt += 1;
                 }
 
                 //check the bottom row
                 if !b_edge_flag {
-                    total = add_nan_f32(total, self.cells[(i + 1) as usize][j as usize]);
+                    total = add_nan_f32(total, self.cells[i + 1][j]);
                     cnt += 1;
                     if !l_edge_flag {
-                        total = add_nan_f32(total, self.cells[(i + 1) as usize][(j - 1) as usize]);
+                        total = add_nan_f32(total, self.cells[i + 1][j - 1]);
                         cnt += 1;
                     }
                     if !r_edge_flag {
-                        total = add_nan_f32(total, self.cells[(i + 1) as usize][(j + 1) as usize]);
+                        total = add_nan_f32(total, self.cells[i + 1][j + 1]);
                         cnt += 1;
                     }
                 }
 
-                self.cells[i as usize][j as usize] = total / (cnt as f32);
+                self.cells[i][j] = total / (cnt as f32);
             }
         }
     }
@@ -640,7 +640,7 @@ impl Heightmap {
         let max_row = self.max_pos.0;
 
         //Load the row - CHECKED TO BE CORRECT USING PREGENNED HEIGHTMAPS
-        let max_row = self.cells[max_row as usize].clone();
+        let max_row = self.cells[max_row].clone();
 
         //Take edge point as highest and use to calculate depth of feature
         const EDGE_THRESHOLD: f32 = 0.0005;
@@ -649,7 +649,7 @@ impl Heightmap {
         let mut second_edge: usize = 0;
 
         //Compare a cell to see if it meets the threshold
-        for i in 0..((self.width() - 1) as usize) {
+        for i in 0..(self.width() - 1) {
             //ignoring 0.0 as they are NaN
             if max_row[i] == 0.0 || max_row[i + 1] == 0.0 {
                 continue;
@@ -663,12 +663,12 @@ impl Heightmap {
                 break;
             }
 
-            if i == (self.width() - 1) as usize {
+            if i == (self.width() - 1) {
                 bail!("Failed to find first edge in hmap")
             }
         }
         //Go backwards to find the edge on the other side
-        for i in (1..((self.width()) as usize)).rev() {
+        for i in (1..(self.width())).rev() {
             //ignoring 0.0 as they are NaN
             if max_row[i] == 0.0 || max_row[i - 1] == 0.0 {
                 continue;
@@ -706,7 +706,7 @@ impl Heightmap {
             bail!("Invalid edge config")
         };
 
-        if second_edge == self.max_pos.0 as usize || first_edge == self.max_pos.0 as usize {
+        if second_edge == self.max_pos.0 || first_edge == self.max_pos.0 {
             bail!("Invalid edge config")
         }
 

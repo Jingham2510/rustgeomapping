@@ -1,4 +1,4 @@
-/// Configure and stream a 435i sensor.
+//! Configure and stream a 435i sensor.
 
 /// Notice that the streaming configuration changes based on the USB speed of the sensor.
 /// If one attempts to set a streaming configuration that is too much for the current USB
@@ -129,7 +129,7 @@ impl RealsenseCam {
         }
 
         //Process the image
-        let image = create_color_image(color_frame.get(0).unwrap())?;
+        let image = create_color_image(color_frame.first().unwrap())?;
 
         //Save the image
         let fp = format!("appdata\\{}.png", filename);

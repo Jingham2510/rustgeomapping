@@ -44,7 +44,7 @@ impl PointCloud {
                 continue;
             }
 
-            points.push([vertex[0] as f32, vertex[1] as f32, vertex[2] as f32]);
+            points.push([vertex[0], vertex[1], vertex[2]]);
             no_of_points += 1;
         }
 
