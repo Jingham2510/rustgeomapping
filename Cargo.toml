@@ -1,7 +1,16 @@
 [package]
 name = "rustgeomapping"
+description = "A set of base tools that are designed to allow RGBD cameras create 2.5D heightmaps from the captured pointclouds. Primarily aimed at geotechnical feature reconstruction."
 version = "0.1.0"
 edition = "2024"
+license = "GPL-3.0"
+license-file = "LICENSE.txt"
+repository = "https://github.com/Jingham2510/rustgeomapping"
+readme =    "README.md"
+keywords = ["Computer vision", "geotechnical", "Depth cameras", "RGBD"]
+categories = ["Computer vision", "Science"]
+
+
 
 [dependencies]
 anyhow = "1.0.102"
