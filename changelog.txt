@@ -1,5 +1,10 @@
 
 V0.1.2 (26/05/26):
+-Implement creation of empty pointcloud
+-Implement heightmap creation from list of pointclouds
+
+
+V0.1.2 (26/05/26):
 -Implement camtypes take pointcloud for agnostic pointcloud capture
 
 V0.1.1 (26/05/26):

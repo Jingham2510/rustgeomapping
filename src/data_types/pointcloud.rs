@@ -18,6 +18,12 @@ pub struct PointCloud {
 }
 
 impl PointCloud {
+    //Creates an empty point cloud with no information
+    pub fn new() -> Self{
+        Self { points: vec![], no_of_points: 0, global_timestamp: Utc::now(), filename: None }
+    }
+
+
     ///Create a pointcloud from a list of points
     pub fn create_from_list(pnts: Vec<[f32; 3]>,) -> Self {
         //Calculate the number of points

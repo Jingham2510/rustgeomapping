@@ -120,7 +120,7 @@ impl Heightmap {
     }
 
     ///Create a heightmap from a pointcloud without consuming it
-    pub fn create_using_pcl_ref(
+    pub fn create_from_pcl_ref(
         pcl: &PointCloud,
         width: usize,
         height: usize,
@@ -164,6 +164,39 @@ impl Heightmap {
             bail!("Failed to make height map from pcl reference")
         }
     }
+
+
+    ///Create from a group of point clouds
+    pub fn create_from_pcl_list(mut pcl_list: Vec<PointCloud>,
+        width: usize,
+        height: usize) -> Result<Self, anyhow::Error>{
+
+            let len = pcl_list.len();
+
+            if len == 0{
+                bail!("No pointclouds to transform");
+            }
+
+            if len == 1{
+                return Heightmap::create_from_pcl_ref(&pcl_list[0], width, height)
+            }else{
+
+
+                //Combine the pointclouds into one pointcloud
+                let mut base_pcl = PointCloud::new();
+
+                //Take the pointclouds from the list - consuming the pointclouds
+                for pcl in pcl_list.into_iter(){
+                    base_pcl.combine(pcl)
+                }
+                //Turn that pointcloud into a heightmap 
+                return Heightmap::create_from_pcl(base_pcl, width, height)
+      
+            }
+
+
+
+        }
 
     ///Lodas a hmap file and creates a heightmap from it
     pub fn create_from_file(filepath: String) -> Result<Self, anyhow::Error> {

@@ -267,7 +267,7 @@ impl Analyser {
                 let mut curr_hmaps: Vec<Heightmap> = vec![];
 
                 for pcl in curr_pcls.iter() {
-                    curr_hmaps.push(Heightmap::create_using_pcl_ref(
+                    curr_hmaps.push(Heightmap::create_from_pcl_ref(
                         pcl,
                         *resolution,
                         *resolution,
@@ -345,10 +345,10 @@ impl Analyser {
                 let mut curr_hmaps: Vec<Heightmap> = vec![];
 
                 let curr_gnd_truth =
-                    Heightmap::create_using_pcl_ref(gnd_truth_pcl, *resolution, *resolution)?;
+                    Heightmap::create_from_pcl_ref(gnd_truth_pcl, *resolution, *resolution)?;
 
                 for pcl in curr_pcls.iter() {
-                    curr_hmaps.push(Heightmap::create_using_pcl_ref(
+                    curr_hmaps.push(Heightmap::create_from_pcl_ref(
                         pcl,
                         *resolution,
                         *resolution,
@@ -428,10 +428,10 @@ impl Analyser {
                 let mut curr_hmaps: Vec<Heightmap> = vec![];
 
                 let curr_gnd_truth =
-                    Heightmap::create_using_pcl_ref(gnd_truth_pcl, *resolution, *resolution)?;
+                    Heightmap::create_from_pcl_ref(gnd_truth_pcl, *resolution, *resolution)?;
 
                 for pcl in curr_pcls.iter() {
-                    curr_hmaps.push(Heightmap::create_using_pcl_ref(
+                    curr_hmaps.push(Heightmap::create_from_pcl_ref(
                         pcl,
                         *resolution,
                         *resolution,
@@ -568,7 +568,7 @@ impl Analyser {
                 let mut curr_hmaps: Vec<Heightmap> = vec![];
 
                 for pcl in curr_pcls.iter() {
-                    curr_hmaps.push(Heightmap::create_using_pcl_ref(
+                    curr_hmaps.push(Heightmap::create_from_pcl_ref(
                         pcl,
                         *resolution,
                         *resolution,
