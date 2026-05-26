@@ -7,7 +7,7 @@ license = "GPL-3.0"
 license-file = "LICENSE"
 repository = "https://github.com/Jingham2510/rustgeomapping"
 readme =    "README.md"
-keywords = ["Computer vision", "geotechnical", "Depth cameras", "RGBD"]
+keywords = ["computer_vision", "geotechnical", "depth_cameras", "RGBD"]
 categories = ["Computer vision", "Science"]
 
 
