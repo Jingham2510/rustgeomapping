@@ -322,11 +322,10 @@ impl PointCloud {
 
     ///Absorbs another pointcloud into this pointcloud
     ///Timestamp of previous pointcloud becomes timestamp of this one
-    pub fn combine(&mut self, other: PointCloud) {
-        for pnt in other.points {
-            self.points.push(pnt);
-            self.no_of_points += 1;
-        }
+    pub fn combine(&mut self, mut other: PointCloud) {
+
+        self.points.append(&mut other.points);
+
     }
 
     ///Applies a decimation filter to the pointcloud, removing every nth point
