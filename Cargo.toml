@@ -18,3 +18,7 @@ image = "0.25.10"
 nalgebra = "0.34.2"
 realsense-rust = "1.3.0"
 realsense-sys = "2.56.5"
+
+
+[features]
+sense = []
