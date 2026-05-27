@@ -521,15 +521,24 @@ impl Heightmap {
         );
         file.write_all(first_line.as_bytes())?;
 
+        let mut mat_string = String::from("");
+
         //Iterate thorugh each row
         for row in self.cells.iter() {
+
+            let mut row_string = format!("");
+
             for cell in row {
-                let cell_val = format!("{:?},", cell);
-                file.write_all(cell_val.as_bytes())?
+                row_string.push_str(&format!("{},", cell));
             }
 
-            file.write_all("\n".as_ref())?;
+            row_string.push_str("\n");
+
+            mat_string.push_str(&row_string);
+            
         }
+
+        file.write_all(mat_string.as_bytes())?;
 
         Ok(())
     }

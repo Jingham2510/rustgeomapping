@@ -1,3 +1,6 @@
+V0.1.5 (27/05/26):
+-Optimise heightmap to file saving (now takes 10x less time)
+
 V0.1.4 (27/05/26):
 -Implement creation of heightmap using desired bin size as opposed to setting a width/height
 
