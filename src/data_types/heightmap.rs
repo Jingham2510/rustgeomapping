@@ -799,6 +799,64 @@ impl Heightmap {
 
         Ok((depth, width, slope))
     }
+
+
+
+    ///Updates a section of the heightmap by slotting in another heightmap
+    /// Assumes that the other heightmap has the same resolution
+    pub fn update_section(&mut self, mut other : Heightmap) -> Result<(), anyhow::Error>{
+
+        //Check that it is feasible for the other heightmap to sit on the main heightmap
+        if self.upper_coord_bounds[0] < other.lower_coord_bounds()[0] || self.lower_coord_bounds[0] > other.upper_coord_bounds[0] || self.lower_coord_bounds[1] > other.upper_coord_bounds[1]|| self.upper_coord_bounds[1] < other.lower_coord_bounds()[1]{
+            bail!("Other heightmap does not sit on main!")
+        }
+
+
+        //--Locate bin in main that corresponds to first bin in other (can be negative - i.e. it starts outside)--
+        //Get bin resolution of main
+        let bin_res_width = (self.upper_coord_bounds[0] - self.lower_coord_bounds[0]) / self.width as f32;
+        let bin_res_height = (self.upper_coord_bounds[1] - self.lower_coord_bounds[1]) / self.height as f32;
+
+        let start_row = ((other.lower_coord_bounds[0] - self.lower_coord_bounds[0]) / bin_res_width) as i32;
+        let start_col = ((other.lower_coord_bounds[1] - self.lower_coord_bounds[1]) / bin_res_height) as i32;
+
+        //Go through each bin and and update the corresponding bin
+        for i in start_row..(start_row + other.height as i32){
+
+            if i < 0 || i >= self.height as i32{
+                continue;
+            }
+
+            for j in start_col..(start_col + other.width as i32){
+                if j < 0 || j >= self.width as i32{
+                continue;
+            }
+                self.cells[j as usize][i as usize] = other.cells[(j  - start_col) as usize][(i  - start_row) as usize];                
+            }
+        }
+        //Check that the bin doesnt reside outside the heightmap area
+
+
+
+        Ok(())
+
+    }
+
+    pub fn set_all_cells(&mut self, val : f32){
+        //Sweep through each cell and replace with the new map height
+        for (x, row) in self.cells.iter_mut().enumerate() {
+            for (y, col) in row.iter_mut().enumerate() {
+                *col = val
+            }
+        }
+        self.max_updated = false;
+        self.min_updated = false;
+
+        self.get_max();
+        self.get_min();
+    }
+
+
 }
 
 ///A selection of different intensity schemas for generating the 2.5D maps from 3D data
