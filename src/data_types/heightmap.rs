@@ -196,9 +196,48 @@ impl Heightmap {
 
 
 
-        }
+    }
 
-    ///Lodas a hmap file and creates a heightmap from it
+
+    ///Creates a heightmap with a desired bin size (square) -- assume all pointclouds have been preprocessed and fit together
+    pub fn create_from_pcl_list_with_res(mut pcl_list: Vec<PointCloud>, desired_bin_size : f32) -> Result<Heightmap, anyhow::Error>{
+
+       
+         let len = pcl_list.len();
+
+            if len == 0{
+                bail!("No pointclouds to transform");
+            }
+
+            if len == 1{
+
+                let bnds = pcl_list[0].get_bounds();
+
+                let bins_per_row : usize = ((bnds[1] - bnds[0])/desired_bin_size) as usize;
+
+
+                return Heightmap::create_from_pcl_ref(&pcl_list[0], bins_per_row, bins_per_row)
+            }else{
+
+                //Combine the pointclouds into one pointcloud
+                let mut base_pcl = PointCloud::new();
+
+                //Take the pointclouds from the list - consuming the pointclouds
+                for pcl in pcl_list.into_iter(){
+                    base_pcl.combine(pcl)
+                }
+
+                //Get the bounds of the pointcloud
+                let bnds = base_pcl.get_bounds(); 
+                let bins_per_row : usize = ((bnds[1] - bnds[0])/desired_bin_size) as usize;
+
+
+                //Turn that pointcloud into a heightmap
+                return Heightmap::create_from_pcl(base_pcl, bins_per_row, bins_per_row)     
+            }
+    }
+
+    ///Loads a hmap file and creates a heightmap from it
     pub fn create_from_file(filepath: String) -> Result<Self, anyhow::Error> {
         //Open the file and create a buffer to read the lines
         let file = File::open(filepath.clone())?;
