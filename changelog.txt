@@ -1,3 +1,6 @@
+V0.1.9 (27/05/26):
+-Slotting no longer slots in NaN values
+
 V0.1.8 (27/05/26):
 -Implement the slotting of smaller heightmaps into larger heightmaps (assuming they have the same resolution)
 

@@ -808,7 +808,9 @@ impl Heightmap {
 
         //Check that it is feasible for the other heightmap to sit on the main heightmap
         if self.upper_coord_bounds[0] < other.lower_coord_bounds()[0] || self.lower_coord_bounds[0] > other.upper_coord_bounds[0] || self.lower_coord_bounds[1] > other.upper_coord_bounds[1]|| self.upper_coord_bounds[1] < other.lower_coord_bounds()[1]{
+            
             bail!("Other heightmap does not sit on main!")
+            
         }
 
 
@@ -831,7 +833,11 @@ impl Heightmap {
                 if j < 0 || j >= self.width as i32{
                 continue;
             }
-                self.cells[j as usize][i as usize] = other.cells[(j  - start_col) as usize][(i  - start_row) as usize];                
+                let val = other.cells[(j  - start_col) as usize][(i  - start_row) as usize];
+                if !val.is_nan(){
+                    self.cells[j as usize][i as usize]  = val;
+                }
+            
             }
         }
         //Check that the bin doesnt reside outside the heightmap area
