@@ -1,5 +1,8 @@
+V0.1.4 (27/05/26):
+-Implement creation of heightmap using desired bin size as opposed to setting a width/height
 
-V0.1.2 (26/05/26):
+
+V0.1.3 (26/05/26):
 -Implement creation of empty pointcloud
 -Implement heightmap creation from list of pointclouds
 
