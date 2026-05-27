@@ -211,12 +211,14 @@ impl Heightmap {
 
             if len == 1{
 
-                let bnds = pcl_list[0].get_bounds();
-
+                let bnds = pcl_list[0].get_bounds(); 
                 let bins_per_row : usize = ((bnds[1] - bnds[0])/desired_bin_size) as usize;
 
+                let bins_per_col : usize = ((bnds[3] - bnds[2])/desired_bin_size) as usize;
 
-                return Heightmap::create_from_pcl_ref(&pcl_list[0], bins_per_row, bins_per_row)
+
+
+                return Heightmap::create_from_pcl_ref(&pcl_list[0], bins_per_row, bins_per_col)
             }else{
 
                 //Combine the pointclouds into one pointcloud

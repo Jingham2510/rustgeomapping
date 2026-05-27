@@ -1,3 +1,6 @@
+V0.1.11 (27/05/26):
+-Bugfix Hmap from pcl with desired res 
+
 V0.1.10 (27/05/26):
 -Hmap from pcl with desired res now accounts for non-square heightmaps
 
