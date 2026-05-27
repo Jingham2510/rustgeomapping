@@ -1,7 +1,7 @@
-V0.1.7 (27/05/26):
+V0.1.8 (27/05/26):
 -Implement the slotting of smaller heightmaps into larger heightmaps (assuming they have the same resolution)
 
-V0.1.6 (27/05/26):
+V0.1.7 (27/05/26):
 -Optimise 2.5D map generation
 
 V0.1.6 (27/05/26):
