@@ -1,4 +1,7 @@
 V0.1.6 (27/05/26):
+-Optimise 2.5D map generation
+
+V0.1.6 (27/05/26):
 -Optimise point cloud combination
 
 V0.1.5 (27/05/26):

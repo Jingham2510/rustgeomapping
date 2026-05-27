@@ -813,8 +813,8 @@ pub enum MapGenOpt {
 ///Transforms 3 point data into a 2.5d heightmap ( where the 3rd data point is the "height"/intensity)
 pub fn trans_to_heightmap(
     data: Vec<[f32; 3]>,
-    width: usize,
-    height: usize,
+    bins_per_row: usize,
+    bins_per_col: usize,
     total_width: f32,
     total_height: f32,
     min_x_bnd: f32,
@@ -823,9 +823,11 @@ pub fn trans_to_heightmap(
 ) -> Result<Vec<Vec<f32>>, anyhow::Error> {
     //Create the empty cell matrix
     //NaN spots are areas with no information
-    let mut cells_pnt_list = vec![vec![vec![]; width]; height];
+    let mut cells_pnt_list = vec![vec![vec![]; bins_per_row]; bins_per_col];
 
-    //Check where the trajectory lies within the cell space - copied from heightmap generation
+    let width_resolution = (total_width / bins_per_row as f32);
+    let height_resolution = (total_height / bins_per_col as f32);
+
     //Check each points and direct it to a cell (updating the average height)
     for pnt in data {
         let mut n = 0;
@@ -834,39 +836,43 @@ pub fn trans_to_heightmap(
         let mut n_fnd = false;
         let mut m_fnd = false;
 
+        let curr_x = pnt[0];
+        let curr_y = pnt[1]
+;
         //Find the horizontal pos
-        while !n_fnd {
-            if pnt[0] <= (((total_width / width as f32) * n as f32) + min_x_bnd) {
-                n_fnd = true;
-            } else {
-                n += 1;
+        while !n_fnd & !m_fnd{
+            if !n_fnd{
+                if curr_x <= ((width_resolution * n as f32) + min_x_bnd) {
+                    n_fnd = true;
+                } else {
+                    n += 1;
+                }
+                //Check if end pos
+                if n == bins_per_row - 1 {
+                    n_fnd = true;
+                }
             }
-
-            //Check if end pos
-            if n == width - 1 {
-                n_fnd = true;
+            if !m_fnd{
+                //Find the vertical pos
+                if curr_y <= (( height_resolution * m as f32) + min_y_bnd) {
+                    m_fnd = true;
+                } else {
+                    m += 1;
+                }
+                //Check if end pos
+                if m == bins_per_col - 1 {
+                    m_fnd = true;
+                }
             }
         }
 
-        //Find the vertical pos
-        while !m_fnd {
-            if pnt[1] <= (((total_height / height as f32) * m as f32) + min_y_bnd) {
-                m_fnd = true;
-            } else {
-                m += 1;
-            }
-            //Check if end pos
-            if m == height - 1 {
-                m_fnd = true;
-            }
-        }
 
         //add the point to the cell point list
         cells_pnt_list[n][m].push(pnt[2]);
     }
 
     //Calculate the height of each cell based on the chosen hmap option
-    let mut cells: Vec<Vec<f32>> = vec![vec![]; width];
+    let mut cells: Vec<Vec<f32>> = vec![vec![]; bins_per_row];
 
     //Iterate through each point list
     for (i, pnt_list) in cells_pnt_list.iter_mut().enumerate() {
