@@ -231,9 +231,11 @@ impl Heightmap {
                 let bnds = base_pcl.get_bounds(); 
                 let bins_per_row : usize = ((bnds[1] - bnds[0])/desired_bin_size) as usize;
 
+                let bins_per_col : usize = ((bnds[3] - bnds[2])/desired_bin_size) as usize;
+
 
                 //Turn that pointcloud into a heightmap
-                return Heightmap::create_from_pcl(base_pcl, bins_per_row, bins_per_row)     
+                return Heightmap::create_from_pcl(base_pcl, bins_per_row, bins_per_col);     
             }
     }
 
