@@ -83,7 +83,7 @@ impl Heightmap {
         let filename = format!("created from pcl- {}", pcl.timestamp());
 
         //Get the bounds
-        let bounds = pcl.get_bounds();
+        let bounds = pcl.bounds();
 
         //Calculate the real distance and height of the heightmap
         let total_width = bounds[1] - bounds[0];
@@ -125,11 +125,14 @@ impl Heightmap {
         width: usize,
         height: usize,
     ) -> Result<Self, anyhow::Error> {
+
+        println!("Width:{} - Height:{}", width, height);
+
         //create the filename from the relative timestamp
         let filename = format!("created from pcl- {}", pcl.timestamp());
 
         //Get the bounds
-        let bounds = pcl.get_bounds();
+        let bounds = pcl.bounds();
 
         //Calculate the real distance and height of the heightmap
         let total_width = bounds[1] - bounds[0];
@@ -211,7 +214,7 @@ impl Heightmap {
 
             if len == 1{
 
-                let bnds = pcl_list[0].get_bounds(); 
+                let bnds = pcl_list[0].bounds(); 
                 let bins_per_row : usize = ((bnds[1] - bnds[0])/desired_bin_size) as usize;
 
                 let bins_per_col: usize = ((bnds[3] - bnds[2])/desired_bin_size) as usize;
@@ -230,7 +233,7 @@ impl Heightmap {
                 }
 
                 //Get the bounds of the pointcloud
-                let bnds = base_pcl.get_bounds(); 
+                let bnds = base_pcl.bounds(); 
                 let bins_per_row : usize = ((bnds[1] - bnds[0])/desired_bin_size) as usize;
 
                 let bins_per_col : usize = ((bnds[3] - bnds[2])/desired_bin_size) as usize;
@@ -898,6 +901,7 @@ pub fn trans_to_heightmap(
 
     //Check each points and direct it to a cell (updating the average height)
     for pnt in data {
+        //Start in the first bin (as the point will never sit at the minimum x bound)
         let mut n = 0;
         let mut m = 0;
 
@@ -905,42 +909,41 @@ pub fn trans_to_heightmap(
         let mut m_fnd = false;
 
         let curr_x = pnt[0];
-        let curr_y = pnt[1]
-;
+        let curr_y = pnt[1];
+
         //Find the horizontal pos
-        while !n_fnd & !m_fnd{
+        while !n_fnd | !m_fnd{
             if !n_fnd{
-                if curr_x <= ((width_resolution * n as f32) + min_x_bnd) {
+                if curr_x <= ((width_resolution * n as f32) + (min_x_bnd + width_resolution)) {
                     n_fnd = true;
                 } else {
                     n += 1;
                 }
                 //Check if end pos
-                if n == bins_per_row - 1 {
+                if n == bins_per_row - 1{                
                     n_fnd = true;
                 }
             }
             if !m_fnd{
                 //Find the vertical pos
-                if curr_y <= (( height_resolution * m as f32) + min_y_bnd) {
+                if curr_y <= (( height_resolution * m as f32) + (min_y_bnd + height_resolution)) {
                     m_fnd = true;
                 } else {
                     m += 1;
                 }
                 //Check if end pos
-                if m == bins_per_col - 1 {
+                if m == bins_per_col - 1{                     
+                    
                     m_fnd = true;
                 }
             }
         }
-
-
         //add the point to the cell point list
-        cells_pnt_list[n][m].push(pnt[2]);
+        cells_pnt_list[m][n].push(pnt[2]);
     }
 
     //Calculate the height of each cell based on the chosen hmap option
-    let mut cells: Vec<Vec<f32>> = vec![vec![]; bins_per_row];
+    let mut cells: Vec<Vec<f32>> = vec![vec![]; bins_per_col];
 
     //Iterate through each point list
     for (i, pnt_list) in cells_pnt_list.iter_mut().enumerate() {
