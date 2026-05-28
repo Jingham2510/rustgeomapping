@@ -1,4 +1,4 @@
-V0.2.1 (27/05/26):
+V0.2.1 (28/05/26):
 -Pointcloud interface change - now precalculates bounds of pcl (and includes the z boundaries)
 -Major bugfixing of heightmap generation
 
