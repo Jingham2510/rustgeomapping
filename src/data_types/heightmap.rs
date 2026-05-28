@@ -126,8 +126,6 @@ impl Heightmap {
         height: usize,
     ) -> Result<Self, anyhow::Error> {
 
-        println!("Width:{} - Height:{}", width, height);
-
         //create the filename from the relative timestamp
         let filename = format!("created from pcl- {}", pcl.timestamp());
 
@@ -303,8 +301,8 @@ impl Heightmap {
             min_pos: (0, 0),
             max_pos: (0, 0),
             cells,
-            lower_coord_bounds: [bounds_res[0], bounds_res[2]],
-            upper_coord_bounds: [bounds_res[1], bounds_res[3]],
+            lower_coord_bounds: [bounds_res[0], bounds_res[1]],
+            upper_coord_bounds: [bounds_res[2], bounds_res[3]],
             filename: filepath,
         })
     }
@@ -520,7 +518,7 @@ impl Heightmap {
 
         //Format the first line to store the real bounds
         let first_line = format!(
-            "bnds:[{},{}][{},{}]\n",
+            "bnds(low_point,upper_point):[{},{}][{},{}]\n",
             self.lower_coord_bounds[0],
             self.lower_coord_bounds[1],
             self.upper_coord_bounds[0],
@@ -815,9 +813,8 @@ impl Heightmap {
 
         //Check that it is feasible for the other heightmap to sit on the main heightmap
         if self.upper_coord_bounds[0] < other.lower_coord_bounds()[0] || self.lower_coord_bounds[0] > other.upper_coord_bounds[0] || self.lower_coord_bounds[1] > other.upper_coord_bounds[1]|| self.upper_coord_bounds[1] < other.lower_coord_bounds()[1]{
-            
-            bail!("Other heightmap does not sit on main!")
-            
+            println!("out of bounds");
+            bail!("Other heightmap does not sit on main!")            
         }
 
 
@@ -826,12 +823,12 @@ impl Heightmap {
         let bin_res_width = (self.upper_coord_bounds[0] - self.lower_coord_bounds[0]) / self.width as f32;
         let bin_res_height = (self.upper_coord_bounds[1] - self.lower_coord_bounds[1]) / self.height as f32;
 
-        let start_row = ((other.lower_coord_bounds[0] - self.lower_coord_bounds[0]) / bin_res_width) as i32;
-        let start_col = ((other.lower_coord_bounds[1] - self.lower_coord_bounds[1]) / bin_res_height) as i32;
+        let start_col = ((other.lower_coord_bounds[0] - self.lower_coord_bounds[0]) / bin_res_width) as i32;
+        let start_row = ((other.lower_coord_bounds[1] - self.lower_coord_bounds[1]) / bin_res_height) as i32;
 
         //Go through each bin and and update the corresponding bin
         for i in start_row..(start_row + other.height as i32){
-
+            
             if i < 0 || i >= self.height as i32{
                 continue;
             }
@@ -840,9 +837,9 @@ impl Heightmap {
                 if j < 0 || j >= self.width as i32{
                 continue;
             }
-                let val = other.cells[(j  - start_col) as usize][(i  - start_row) as usize];
+                let val = other.cells[(i  - start_row) as usize][(j  - start_col) as usize];
                 if !val.is_nan(){
-                    self.cells[j as usize][i as usize]  = val;
+                    self.cells[i as usize][j as usize]  = val;
                 }
             
             }
