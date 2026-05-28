@@ -1,3 +1,6 @@
+V0.1.13 (27/05/26):
+-General bugixing
+
 V0.1.11 (27/05/26):
 -Bugfix Hmap from pcl with desired res 
 
