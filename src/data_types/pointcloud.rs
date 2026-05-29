@@ -291,15 +291,7 @@ impl PointCloud {
         }
 
         //Calculate the new bounds by transforming the point
-        let curr_bounds = self.bounds;
-
-        let mut min_pnt = Vector4::new(curr_bounds[0], curr_bounds[2], curr_bounds[4], 1.0);
-        let mut max_pnt = Vector4::new(curr_bounds[1], curr_bounds[3], curr_bounds[5], 1.0);
-
-        min_pnt = tmat * min_pnt;
-        max_pnt = tmat * max_pnt;
-
-        self.bounds = [min_pnt[0], max_pnt[0], min_pnt[1], max_pnt[1], min_pnt[2], max_pnt[2]]
+        self.update_bounds();
 
 
 
@@ -361,15 +353,17 @@ impl PointCloud {
 
         file.write_all(datetime_fmt.as_bytes())?;
 
-        //Save the cloud points on seperate lines
+        let mut file_string = String::new();
+
+        //Add all points to the file string
         for i in 0..self.no_of_points {
-            let pnt = format!(
+            file_string.push_str(&format!(
                 "{:?},{:?},{:?}\n",
                 self.points[i][0], self.points[i][1], self.points[i][2]
-            );
-
-            file.write_all(pnt.as_bytes())?;
+            ))
         }
+
+        file.write_all(file_string.as_bytes())?;
 
         //Return the all clear
         Ok(())
