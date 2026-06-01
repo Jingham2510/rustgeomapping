@@ -516,15 +516,8 @@ impl Heightmap {
 
     ///Returns the flattened cells (i.e. every single cell in a single vector)
     pub fn get_flattened_cells(&self) -> Result<Vec<f32>, anyhow::Error> {
-        let mut cell_list: Vec<f32> = vec![];
-
-        for x in 0..(self.width - 1) {
-            for y in 0..(self.height - 1) {
-                cell_list.push(self.cells[x][y]);
-            }
-        }
-
-        Ok(cell_list)
+        
+        Ok(self.cells().into_iter().flatten().collect())
     }
 
     ///Saves the heightmap to a text file
