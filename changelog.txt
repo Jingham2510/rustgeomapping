@@ -1,3 +1,6 @@
+V0.2.4(01/06/26):
+-Implement cell height setter that doesn't check for new min/max
+
 V0.2.3(29/05/26):
 -Bugfix bound calculating in pointcloud transform
 
