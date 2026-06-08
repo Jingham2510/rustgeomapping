@@ -4,6 +4,7 @@ V0.2.6(08/7/26):
 -remove get_aruco_tags cmd (no python script associated - bug)
 -Implement intrinsic info struct
 -implement get intrinsic info for realsense camera
+-Implement generic get colour image
 
 V0.2.5(01/06/26):
 -Modify backend of heightmap flatten to user iter instead
