@@ -1,6 +1,7 @@
 use crate::backend::realsense::realsense_cam::RealsenseCam;
 ///High levels functions used to generate information from the RGBD cameras
 use crate::data_types::pointcloud::PointCloud;
+use crate::data_types::intrinsic_info::IntrinsicInfo;
 
 use std::fmt;
 
@@ -16,6 +17,14 @@ impl CamType {
             CamType::RealsenseCam(cam) => cam.get_pointcloud(),
         }
     }
+
+    pub fn get_intrinsics(&self) ->Result<IntrinsicInfo, anyhow::Error>{
+        match self{
+            CamType::RealsenseCam(cam) => cam.get_intrinsic(),
+        }
+    }
+
+
 }
 
 ///Generic depth camera implementation
@@ -38,6 +47,9 @@ pub trait Required<T> {
     fn connect(id: u32) -> Result<DepthCam<T>, anyhow::Error>;
     ///Take a pointcloud from the camera
     fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error>;
+
+    ///Get the intrinsic information from a camera
+    fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>;
 }
 
 impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
@@ -57,6 +69,10 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
         //Split the info into cloud and timestamp
         PointCloud::create_from_iter(pcl_info)
+    }
+
+    fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{
+        self.cam.get_intrinsics()
     }
 }
 

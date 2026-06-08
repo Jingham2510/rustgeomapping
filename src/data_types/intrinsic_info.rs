@@ -3,6 +3,7 @@ use nalgebra::Matrix3;
 
 
 //Intrinsic camera information
+#[derive(Debug)]
 pub struct IntrinsicInfo{
     focal_length_x : f32,
     focal_length_y : f32,

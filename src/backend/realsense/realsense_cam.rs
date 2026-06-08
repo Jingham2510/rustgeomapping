@@ -142,13 +142,21 @@ impl RealsenseCam {
     }
 
     ///Get the intrinsic information reported by the camera
-    pub fn get_intrinsics(&mut self) -> IntrinsicInfo{
+    pub fn get_intrinsics(&self) -> Result<IntrinsicInfo, anyhow::Error>{
+
+        //Load the intrinsic information from the camera
+        let intrinsics = self.pipeline.profile().streams()[0].intrinsics()?; 
 
 
-        println!("{}", self.pipeline.profile().device().info());
 
-
-        todo!()
+        //Create the intrinsic information - assume no skew
+        Ok(IntrinsicInfo::create(
+            intrinsics.fx(),
+            intrinsics.fy(),
+            intrinsics.ppx(),
+            intrinsics.ppy(),
+            0.0
+        ))       
     }
 
    
