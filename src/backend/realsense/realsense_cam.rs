@@ -118,7 +118,7 @@ impl RealsenseCam {
     }
 
     ///Get a colour image from the realsense camera
-    pub fn get_image(&mut self, filename: &str) -> Result<(), anyhow::Error> {
+    pub fn get_image(&mut self, filepath: &str) -> Result<&str, anyhow::Error> {
         //Wait for a frame to arrive
         let frame = self.pipeline.wait(None)?;
         //Extract the first colour frame
@@ -133,12 +133,13 @@ impl RealsenseCam {
         let image = create_color_image(color_frame.first().unwrap())?;
 
         //Save the image
-        let fp = format!("appdata\\{}.png", filename);
+        let fp = format!(".png", filepath);
         image.save(fp)?;
 
         println!("Image saved!");
 
-        Ok(())
+        //return the filepath of the image location
+        Ok(fp)
     }
 
     ///Get the intrinsic information reported by the camera

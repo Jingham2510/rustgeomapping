@@ -5,6 +5,7 @@ V0.2.6(08/7/26):
 -Implement intrinsic info struct
 -implement get intrinsic info for realsense camera
 -Implement generic get colour image
+-Modify realsense get image to return the string of the filepath
 
 V0.2.5(01/06/26):
 -Modify backend of heightmap flatten to user iter instead

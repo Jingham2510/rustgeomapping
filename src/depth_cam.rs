@@ -24,7 +24,7 @@ impl CamType {
         }
     }
 
-    pub fn get_colour_image(&self, filepath : &str) -> Result<(), anyhow::Error>{
+    pub fn get_colour_image(&self, filepath : &str) -> Result<&str, anyhow::Error>{
         match self{
             CamType::RealsenseCam(cam) => cam.get_colour_image(filepath),
         }
@@ -58,7 +58,7 @@ pub trait Required<T> {
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>;
 
     ///Save a colour image
-    fn get_colour_image(&mut self, filepath: &str ) -> Result<(), anyhow::Error>{}
+    fn get_colour_image(&mut self, filepath: &str ) -> Result<&str, anyhow::Error>{}
 }
 
 impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
