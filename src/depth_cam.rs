@@ -94,3 +94,9 @@ impl DepthCam<RealsenseCam> {
         DepthCam::connect(id)
     }
 }
+
+impl DepthCam<T> {
+    pub fn id(&self) -> u32{
+        self.id()
+    }
+}
