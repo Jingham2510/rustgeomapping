@@ -125,7 +125,6 @@ impl Heightmap {
         width: usize,
         height: usize,
     ) -> Result<Self, anyhow::Error> {
-
         //create the filename from the relative timestamp
         let filename = format!("created from pcl- {}", pcl.timestamp());
 
@@ -166,80 +165,69 @@ impl Heightmap {
         }
     }
 
-
     ///Create from a group of point clouds
-    pub fn create_from_pcl_list(mut pcl_list: Vec<PointCloud>,
+    pub fn create_from_pcl_list(
+        pcl_list: Vec<PointCloud>,
         width: usize,
-        height: usize) -> Result<Self, anyhow::Error>{
+        height: usize,
+    ) -> Result<Self, anyhow::Error> {
+        let len = pcl_list.len();
 
-            let len = pcl_list.len();
+        if len == 0 {
+            bail!("No pointclouds to transform");
+        }
 
-            if len == 0{
-                bail!("No pointclouds to transform");
+        if len == 1 {
+            return Heightmap::create_from_pcl_ref(&pcl_list[0], width, height);
+        } else {
+            //Combine the pointclouds into one pointcloud
+            let mut base_pcl = PointCloud::new();
+
+            //Take the pointclouds from the list - consuming the pointclouds
+            for pcl in pcl_list.into_iter() {
+                base_pcl.combine(pcl)
             }
-
-            if len == 1{
-                return Heightmap::create_from_pcl_ref(&pcl_list[0], width, height)
-            }else{
-
-
-                //Combine the pointclouds into one pointcloud
-                let mut base_pcl = PointCloud::new();
-
-                //Take the pointclouds from the list - consuming the pointclouds
-                for pcl in pcl_list.into_iter(){
-                    base_pcl.combine(pcl)
-                }
-                //Turn that pointcloud into a heightmap 
-                return Heightmap::create_from_pcl(base_pcl, width, height)
-      
-            }
-
-
-
+            //Turn that pointcloud into a heightmap
+            return Heightmap::create_from_pcl(base_pcl, width, height);
+        }
     }
 
-
     ///Creates a heightmap with a desired bin size (square) -- assume all pointclouds have been preprocessed and fit together
-    pub fn create_from_pcl_list_with_res(mut pcl_list: Vec<PointCloud>, desired_bin_size : f32) -> Result<Heightmap, anyhow::Error>{
+    pub fn create_from_pcl_list_with_res(
+        pcl_list: Vec<PointCloud>,
+        desired_bin_size: f32,
+    ) -> Result<Heightmap, anyhow::Error> {
+        let len = pcl_list.len();
 
-       
-         let len = pcl_list.len();
+        if len == 0 {
+            bail!("No pointclouds to transform");
+        }
 
-            if len == 0{
-                bail!("No pointclouds to transform");
+        if len == 1 {
+            let bnds = pcl_list[0].bounds();
+            let bins_per_row: usize = ((bnds[1] - bnds[0]) / desired_bin_size) as usize;
+
+            let bins_per_col: usize = ((bnds[3] - bnds[2]) / desired_bin_size) as usize;
+
+            return Heightmap::create_from_pcl_ref(&pcl_list[0], bins_per_row, bins_per_col);
+        } else {
+            //Combine the pointclouds into one pointcloud
+            let mut base_pcl = PointCloud::new();
+
+            //Take the pointclouds from the list - consuming the pointclouds
+            for pcl in pcl_list.into_iter() {
+                base_pcl.combine(pcl)
             }
 
-            if len == 1{
+            //Get the bounds of the pointcloud
+            let bnds = base_pcl.bounds();
+            let bins_per_row: usize = ((bnds[1] - bnds[0]) / desired_bin_size) as usize;
 
-                let bnds = pcl_list[0].bounds(); 
-                let bins_per_row : usize = ((bnds[1] - bnds[0])/desired_bin_size) as usize;
+            let bins_per_col: usize = ((bnds[3] - bnds[2]) / desired_bin_size) as usize;
 
-                let bins_per_col: usize = ((bnds[3] - bnds[2])/desired_bin_size) as usize;
-
-
-
-                return Heightmap::create_from_pcl_ref(&pcl_list[0], bins_per_row, bins_per_col)
-            }else{
-
-                //Combine the pointclouds into one pointcloud
-                let mut base_pcl = PointCloud::new();
-
-                //Take the pointclouds from the list - consuming the pointclouds
-                for pcl in pcl_list.into_iter(){
-                    base_pcl.combine(pcl)
-                }
-
-                //Get the bounds of the pointcloud
-                let bnds = base_pcl.bounds(); 
-                let bins_per_row : usize = ((bnds[1] - bnds[0])/desired_bin_size) as usize;
-
-                let bins_per_col : usize = ((bnds[3] - bnds[2])/desired_bin_size) as usize;
-
-
-                //Turn that pointcloud into a heightmap
-                return Heightmap::create_from_pcl(base_pcl, bins_per_row, bins_per_col);     
-            }
+            //Turn that pointcloud into a heightmap
+            return Heightmap::create_from_pcl(base_pcl, bins_per_row, bins_per_col);
+        }
     }
 
     ///Loads a hmap file and creates a heightmap from it
@@ -516,7 +504,6 @@ impl Heightmap {
 
     ///Returns the flattened cells (i.e. every single cell in a single vector)
     pub fn get_flattened_cells(&self) -> Result<Vec<f32>, anyhow::Error> {
-        
         Ok(self.cells().into_iter().flatten().collect())
     }
 
@@ -539,7 +526,6 @@ impl Heightmap {
 
         //Iterate thorugh each row
         for row in self.cells.iter() {
-
             let mut row_string = format!("");
 
             for cell in row {
@@ -549,7 +535,6 @@ impl Heightmap {
             row_string.push_str("\n");
 
             mat_string.push_str(&row_string);
-            
         }
 
         file.write_all(mat_string.as_bytes())?;
@@ -814,57 +799,56 @@ impl Heightmap {
         Ok((depth, width, slope))
     }
 
-
-
     ///Updates a section of the heightmap by slotting in another heightmap
     /// Assumes that the other heightmap has the same resolution
-    pub fn update_section(&mut self, mut other : Heightmap) -> Result<(), anyhow::Error>{
-
+    pub fn update_section(&mut self, other: Heightmap) -> Result<(), anyhow::Error> {
         //Check that it is feasible for the other heightmap to sit on the main heightmap
-        if self.upper_coord_bounds[0] < other.lower_coord_bounds()[0] || self.lower_coord_bounds[0] > other.upper_coord_bounds[0] || self.lower_coord_bounds[1] > other.upper_coord_bounds[1]|| self.upper_coord_bounds[1] < other.lower_coord_bounds()[1]{
+        if self.upper_coord_bounds[0] < other.lower_coord_bounds()[0]
+            || self.lower_coord_bounds[0] > other.upper_coord_bounds[0]
+            || self.lower_coord_bounds[1] > other.upper_coord_bounds[1]
+            || self.upper_coord_bounds[1] < other.lower_coord_bounds()[1]
+        {
             println!("out of bounds");
-            bail!("Other heightmap does not sit on main!")            
+            bail!("Other heightmap does not sit on main!")
         }
-
 
         //--Locate bin in main that corresponds to first bin in other (can be negative - i.e. it starts outside)--
         //Get bin resolution of main
-        let bin_res_width = (self.upper_coord_bounds[0] - self.lower_coord_bounds[0]) / self.width as f32;
-        let bin_res_height = (self.upper_coord_bounds[1] - self.lower_coord_bounds[1]) / self.height as f32;
+        let bin_res_width =
+            (self.upper_coord_bounds[0] - self.lower_coord_bounds[0]) / self.width as f32;
+        let bin_res_height =
+            (self.upper_coord_bounds[1] - self.lower_coord_bounds[1]) / self.height as f32;
 
-        let start_col = ((other.lower_coord_bounds[0] - self.lower_coord_bounds[0]) / bin_res_width) as i32;
-        let start_row = ((other.lower_coord_bounds[1] - self.lower_coord_bounds[1]) / bin_res_height) as i32;
+        let start_col =
+            ((other.lower_coord_bounds[0] - self.lower_coord_bounds[0]) / bin_res_width) as i32;
+        let start_row =
+            ((other.lower_coord_bounds[1] - self.lower_coord_bounds[1]) / bin_res_height) as i32;
 
         //Go through each bin and and update the corresponding bin
-        for i in start_row..(start_row + other.height as i32){
-            
-            if i < 0 || i >= self.height as i32{
+        for i in start_row..(start_row + other.height as i32) {
+            if i < 0 || i >= self.height as i32 {
                 continue;
             }
 
-            for j in start_col..(start_col + other.width as i32){
-                if j < 0 || j >= self.width as i32{
-                continue;
-            }
-                let val = other.cells[(i  - start_row) as usize][(j  - start_col) as usize];
-                if !val.is_nan(){
-                    self.cells[i as usize][j as usize]  = val;
+            for j in start_col..(start_col + other.width as i32) {
+                if j < 0 || j >= self.width as i32 {
+                    continue;
                 }
-            
+                let val = other.cells[(i - start_row) as usize][(j - start_col) as usize];
+                if !val.is_nan() {
+                    self.cells[i as usize][j as usize] = val;
+                }
             }
         }
         //Check that the bin doesnt reside outside the heightmap area
 
-
-
         Ok(())
-
     }
 
-    pub fn set_all_cells(&mut self, val : f32){
+    pub fn set_all_cells(&mut self, val: f32) {
         //Sweep through each cell and replace with the new map height
-        for (x, row) in self.cells.iter_mut().enumerate() {
-            for (y, col) in row.iter_mut().enumerate() {
+        for row in self.cells.iter_mut() {
+            for col in row.iter_mut() {
                 *col = val
             }
         }
@@ -874,8 +858,6 @@ impl Heightmap {
         self.get_max();
         self.get_min();
     }
-
-
 }
 
 ///A selection of different intensity schemas for generating the 2.5D maps from 3D data
@@ -902,8 +884,8 @@ pub fn trans_to_heightmap(
     //NaN spots are areas with no information
     let mut cells_pnt_list = vec![vec![vec![]; bins_per_row]; bins_per_col];
 
-    let width_resolution = (total_width / bins_per_row as f32);
-    let height_resolution = (total_height / bins_per_col as f32);
+    let width_resolution = total_width / bins_per_row as f32;
+    let height_resolution = total_height / bins_per_col as f32;
 
     //Check each points and direct it to a cell (updating the average height)
     for pnt in data {
@@ -918,28 +900,27 @@ pub fn trans_to_heightmap(
         let curr_y = pnt[1];
 
         //Find the horizontal pos
-        while !n_fnd | !m_fnd{
-            if !n_fnd{
+        while !n_fnd | !m_fnd {
+            if !n_fnd {
                 if curr_x <= ((width_resolution * n as f32) + (min_x_bnd + width_resolution)) {
                     n_fnd = true;
                 } else {
                     n += 1;
                 }
                 //Check if end pos
-                if n == bins_per_row - 1{                
+                if n == bins_per_row - 1 {
                     n_fnd = true;
                 }
             }
-            if !m_fnd{
+            if !m_fnd {
                 //Find the vertical pos
-                if curr_y <= (( height_resolution * m as f32) + (min_y_bnd + height_resolution)) {
+                if curr_y <= ((height_resolution * m as f32) + (min_y_bnd + height_resolution)) {
                     m_fnd = true;
                 } else {
                     m += 1;
                 }
                 //Check if end pos
-                if m == bins_per_col - 1{                     
-                    
+                if m == bins_per_col - 1 {
                     m_fnd = true;
                 }
             }
@@ -1035,7 +1016,7 @@ pub fn trans_to_heightmap(
 
 ///Adds a value (that could possibly be NaN) to a variable
 fn add_nan_f32(var: f32, val: f32) -> f32 {
-    //If the value is NaN just add nothing
+    //If the value is NaN just add nothingW
     if val.is_nan() { var } else { var + val }
 }
 

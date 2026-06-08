@@ -9,17 +9,14 @@ pub enum CamType {
     RealsenseCam(DepthCam<RealsenseCam>),
 }
 
-
-impl CamType{
+impl CamType {
     ///Take a pointcloud regardless of camera type
-    pub fn take_pcl(&mut self) ->Result<PointCloud, anyhow::Error> {
-        match self{
-            CamType::RealsenseCam(cam) => {cam.get_pointcloud()}
-
+    pub fn take_pcl(&mut self) -> Result<PointCloud, anyhow::Error> {
+        match self {
+            CamType::RealsenseCam(cam) => cam.get_pointcloud(),
         }
     }
 }
-
 
 ///Generic depth camera implementation
 
@@ -31,7 +28,6 @@ pub struct DepthCam<T> {
 impl fmt::Display for DepthCam<RealsenseCam> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Cam ID: {}", self.id)
-
     }
 }
 
@@ -56,7 +52,6 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
     fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error> {
         const MAX_RANGE: f32 = 2.0;
-
 
         let pcl_info = self.cam.get_depth_pnts(MAX_RANGE)?;
 

@@ -15,6 +15,7 @@ use realsense_rust::{
     kind::{Rs2CameraInfo, Rs2Format, Rs2ProductLine, Rs2StreamKind},
     pipeline::InactivePipeline,
 };
+use crate::data_types::intrinsic_info::IntrinsicInfo;
 
 use std::process::{Command, Stdio};
 use std::{collections::HashSet, convert::TryFrom, time::Duration};
@@ -140,82 +141,15 @@ impl RealsenseCam {
         Ok(())
     }
 
-    ///Return all aruco tags visible to the camera
-    pub fn get_aruco_tags(&mut self) -> Result<Vec<(usize, [(i32, i32); 4])>, anyhow::Error> {
-        //Take an image and save it in the application data
-        let tag_img_fp = format!("aruco_detect_{}", self.cam_no);
-        self.get_image(&tag_img_fp)?;
+    ///Get the intrinsic information reported by the camera
+    pub fn get_intrinsics(&mut self) -> IntrinsicInfo{
 
-        //Run the python script - only works on windows machines
-        let py_cmd = Command::new(
-            //,
-            "cmd",
-        )
-        .args([
-            "/C",
-            &format!(
-                "py src\\aruco_detection\\detect_aruco_id.py appdata\\{}.png",
-                tag_img_fp
-            ),
-        ])
-        .stdout(Stdio::piped())
-        .output()
-        .unwrap();
 
-        //Get the output string from the python file and split it line by line
-        let out_string = String::from_utf8(py_cmd.stdout).unwrap();
-        let line_split: Vec<&str> = out_string.split("\n").collect();
+        println!("{}", self.pipeline.profile().device().info());
 
-        //Get the number of IDs detected
-        let no_of_ids: usize = line_split[1]
-            .trim()
-            .replace("ID_COUNT:", "")
-            .parse()
-            .unwrap();
 
-        println!("Number of IDs detected: {}", no_of_ids);
-
-        if no_of_ids == 0 {
-            bail!("No ids detected")
-        }
-
-        let mut id_info: Vec<(usize, [(i32, i32); 4])> = vec![];
-
-        //Extract the id information
-        let lines_per_id = 4;
-        for i in 0..no_of_ids {
-            let start_line = i + 2 + (i * lines_per_id);
-            println!("{}", line_split[start_line]);
-
-            //Get the id number
-            let id_no: usize = line_split[start_line]
-                .trim()
-                .replace("MARK:[[", "")
-                .replace("]]", "")
-                .parse()
-                .unwrap();
-
-            //Get the corner information
-            let mut corners: [(i32, i32); 4] = [(0, 0), (0, 0), (0, 0), (0, 0)];
-            for j in 1..=4 {
-                let corner_str: &str = line_split[start_line + j];
-
-                let corner_split = corner_str
-                    .trim()
-                    .replace("CORN:", "")
-                    .replace("[", "")
-                    .replace("]", "");
-
-                let corner_split: Vec<&str> = corner_split.split(".").collect();
-
-                corners[j - 1] = (
-                    corner_split[0].trim().parse().unwrap(),
-                    corner_split[1].trim().parse().unwrap(),
-                );
-            }
-            id_info.push((id_no, corners));
-        }
-
-        Ok(id_info)
+        todo!()
     }
+
+   
 }

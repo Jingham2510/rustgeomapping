@@ -16,36 +16,37 @@ pub struct PointCloud {
     ///The name of the file the pointcloud was loaded from (if loaded)
     filename: Option<String>,
     ///The rectangular bounds of the point cloud
-    bounds : [f32;6],
+    bounds: [f32; 6],
 }
 
 impl PointCloud {
     //Creates an empty point cloud with no information
-    pub fn new() -> Self{
-        Self { points: vec![], no_of_points: 0, global_timestamp: Utc::now(), filename: None, bounds : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] }
+    pub fn new() -> Self {
+        Self {
+            points: vec![],
+            no_of_points: 0,
+            global_timestamp: Utc::now(),
+            filename: None,
+            bounds: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        }
     }
 
-
     ///Create a pointcloud from a list of points
-    pub fn create_from_list(pnts: Vec<[f32; 3]>,) -> Self {
+    pub fn create_from_list(pnts: Vec<[f32; 3]>) -> Self {
         //Calculate the number of points
         let no_of_points = pnts.len();
 
-
         Self {
-            bounds : PointCloud::calculate_bounds(&pnts),
+            bounds: PointCloud::calculate_bounds(&pnts),
             points: pnts,
             no_of_points,
             global_timestamp: Utc::now(),
             filename: None,
-            
         }
     }
 
     ///Create a pointcloud from a list of vertices - assuming points are valid
-    pub fn create_from_iter(
-        vertices: Vec<[f32; 3]>
-    ) -> Result<Self, anyhow::Error> {
+    pub fn create_from_iter(vertices: Vec<[f32; 3]>) -> Result<Self, anyhow::Error> {
         let mut points: Vec<[f32; 3]> = vec![];
         let mut no_of_points = 0;
 
@@ -56,41 +57,37 @@ impl PointCloud {
         let mut z_max = -9999.0;
         let mut z_min = 9999.0;
 
-
-
         for vertex in vertices.iter() {
-  
             let x = vertex[0];
             let y = vertex[1];
             let z = vertex[2];
 
-            if x > x_max{
+            if x > x_max {
                 x_max = x;
-            }else if x < x_min{
+            } else if x < x_min {
                 x_min = x
             }
-            if y > y_max{
+            if y > y_max {
                 y_max = y;
-            }else if y < y_min{
+            } else if y < y_min {
                 y_min = y
             }
-            if z > z_max{
+            if z > z_max {
                 z_max = z;
-            }else if z < z_min{
+            } else if z < z_min {
                 z_min = z
             }
-       
 
             points.push([vertex[0], vertex[1], vertex[2]]);
             no_of_points += 1;
         }
 
-        Ok(Self{
+        Ok(Self {
             points,
             no_of_points,
             global_timestamp: Utc::now(),
-            filename: None,   
-            bounds : [x_min, x_max, y_min, y_max, z_min, z_max]         
+            filename: None,
+            bounds: [x_min, x_max, y_min, y_max, z_min, z_max],
         })
     }
 
@@ -133,7 +130,7 @@ impl PointCloud {
         let no_of_points = points.len();
 
         Ok(Self {
-            bounds : PointCloud::calculate_bounds(&points),
+            bounds: PointCloud::calculate_bounds(&points),
             points,
             no_of_points,
             global_timestamp,
@@ -141,40 +138,37 @@ impl PointCloud {
         })
     }
 
-    fn calculate_bounds(points : &Vec<[f32;3]>) -> [f32;6]{
-
-         let mut x_max = -9999.0;
+    fn calculate_bounds(points: &Vec<[f32; 3]>) -> [f32; 6] {
+        let mut x_max = -9999.0;
         let mut x_min = 9999.0;
         let mut y_max = -9999.0;
         let mut y_min = 9999.0;
         let mut z_max = -9999.0;
         let mut z_min = 9999.0;
 
-
-        for pnt in points.into_iter(){
+        for pnt in points.into_iter() {
             let x = pnt[0];
             let y = pnt[1];
             let z = pnt[2];
 
-            if x > x_max{
+            if x > x_max {
                 x_max = x;
-            }else if x < x_min{
+            } else if x < x_min {
                 x_min = x
             }
-            if y > y_max{
+            if y > y_max {
                 y_max = y;
-            }else if y < y_min{
+            } else if y < y_min {
                 y_min = y
             }
-            if z > z_max{
+            if z > z_max {
                 z_max = z;
-            }else if z < z_min{
+            } else if z < z_min {
                 z_min = z
             }
         }
 
         [x_min, x_max, y_min, y_max, z_min, z_max]
-
     }
 
     ///Get the points in the point cloud without destroying the cloud
@@ -208,14 +202,12 @@ impl PointCloud {
     }
 
     ///Get the xyz bounds of the point cloud
-    pub fn bounds(&self) -> [f32;6]{
+    pub fn bounds(&self) -> [f32; 6] {
         self.bounds
     }
-    
 
     ///Calculate the xy plane area of the pcl
-    pub fn get_xy_area(&self) -> f32 {       
-
+    pub fn get_xy_area(&self) -> f32 {
         ((self.bounds[1] - self.bounds[0]) * (self.bounds[3] - self.bounds[2])).abs()
     }
 
@@ -266,13 +258,22 @@ impl PointCloud {
 
     ///Translate a pointcloud with xyz coords
     pub fn translate(&mut self, x: f32, y: f32, z: f32) {
-
-        self.points = self.points.iter().map(|[pnt_x,pnt_y,pnt_z]| {[pnt_x + x, pnt_y+y, pnt_z+z]}).collect::<Vec<[f32;3]>>();
+        self.points = self
+            .points
+            .iter()
+            .map(|[pnt_x, pnt_y, pnt_z]| [pnt_x + x, pnt_y + y, pnt_z + z])
+            .collect::<Vec<[f32; 3]>>();
 
         let curr_bounds = self.bounds;
 
-        self.bounds = [curr_bounds[0] + x, curr_bounds[1] + x, curr_bounds[2] + y, curr_bounds[3] + y, curr_bounds[4] + z, curr_bounds[5] + z]
-
+        self.bounds = [
+            curr_bounds[0] + x,
+            curr_bounds[1] + x,
+            curr_bounds[2] + y,
+            curr_bounds[3] + y,
+            curr_bounds[4] + z,
+            curr_bounds[5] + z,
+        ]
     }
 
     ///Transform a pointcloud by using a homogenous matrix
@@ -292,29 +293,34 @@ impl PointCloud {
 
         //Calculate the new bounds by transforming the point
         self.update_bounds();
-
-
-
     }
 
-    fn update_bounds(&mut self){
+    fn update_bounds(&mut self) {
         self.bounds = PointCloud::calculate_bounds(&self.points)
     }
 
     ///Scale every point by the same value
     pub fn scale_even(&mut self, scale_val: f32) {
+        self.points = self
+            .points
+            .iter_mut()
+            .map(|[x, y, z]| [*x * scale_val, *y * scale_val, *z * scale_val])
+            .collect::<Vec<[f32; 3]>>();
 
-        self.points = self.points.iter_mut().map(|[x, y, z]|{[*x * scale_val, *y * scale_val, *z * scale_val]}).collect::<Vec<[f32;3]>>();
-        
         let bnds = self.bounds;
-        self.bounds = [bnds[0]* scale_val, bnds[1]* scale_val, bnds[2]* scale_val, bnds[3]* scale_val, bnds[4]* scale_val, bnds[5]* scale_val];
-
+        self.bounds = [
+            bnds[0] * scale_val,
+            bnds[1] * scale_val,
+            bnds[2] * scale_val,
+            bnds[3] * scale_val,
+            bnds[4] * scale_val,
+            bnds[5] * scale_val,
+        ];
     }
 
     ///Filter a pointcloud by specifying the valid bounds
     ///Inclusive of points that lie on the boundary
     pub fn crop(&mut self, min_x: f32, max_x: f32, min_y: f32, max_y: f32, min_z: f32, max_z: f32) {
-
         //Filter the points out
         let pnts = self.points();
 
@@ -382,17 +388,35 @@ impl PointCloud {
     ///Absorbs another pointcloud into this pointcloud
     ///Timestamp of previous pointcloud becomes timestamp of this one
     pub fn combine(&mut self, mut other: PointCloud) {
-
         self.points.append(&mut other.points);
 
         //Update the bounds
-        self.bounds = [*[self.bounds[0], other.bounds[0]].iter().min_by(|a, b| a.total_cmp(b)).unwrap(), 
-        *[self.bounds[1], other.bounds[1]].iter().max_by(|a, b| a.total_cmp(b)).unwrap(),
-                     *[self.bounds[2], other.bounds[2]].iter().min_by(|a, b| a.total_cmp(b)).unwrap(), 
-                     *[self.bounds[3], other.bounds[3]].iter().max_by(|a, b| a.total_cmp(b)).unwrap(),
-                     *[self.bounds[4], other.bounds[4]].iter().min_by(|a, b| a.total_cmp(b)).unwrap(),
-                      *[self.bounds[5], other.bounds[5]].iter().max_by(|a, b| a.total_cmp(b)).unwrap()];
-
+        self.bounds = [
+            *[self.bounds[0], other.bounds[0]]
+                .iter()
+                .min_by(|a, b| a.total_cmp(b))
+                .unwrap(),
+            *[self.bounds[1], other.bounds[1]]
+                .iter()
+                .max_by(|a, b| a.total_cmp(b))
+                .unwrap(),
+            *[self.bounds[2], other.bounds[2]]
+                .iter()
+                .min_by(|a, b| a.total_cmp(b))
+                .unwrap(),
+            *[self.bounds[3], other.bounds[3]]
+                .iter()
+                .max_by(|a, b| a.total_cmp(b))
+                .unwrap(),
+            *[self.bounds[4], other.bounds[4]]
+                .iter()
+                .min_by(|a, b| a.total_cmp(b))
+                .unwrap(),
+            *[self.bounds[5], other.bounds[5]]
+                .iter()
+                .max_by(|a, b| a.total_cmp(b))
+                .unwrap(),
+        ];
     }
 
     ///Applies a decimation filter to the pointcloud, removing every nth point

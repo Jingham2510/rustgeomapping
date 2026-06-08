@@ -76,10 +76,7 @@ impl Analyser {
     ///Get the rectangular trajectory bound of the test
     pub fn get_traj_bounds(&self) -> Result<[f64; 4], anyhow::Error> {
         if self.data_handler.is_some() {
-            self.data_handler
-                .as_ref()
-                .unwrap()
-                .get_traj_rect_bnds()
+            self.data_handler.as_ref().unwrap().get_traj_rect_bnds()
         } else {
             bail!("No data file associated with test");
         }
