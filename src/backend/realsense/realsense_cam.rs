@@ -17,7 +17,6 @@ use realsense_rust::{
 };
 use crate::data_types::intrinsic_info::IntrinsicInfo;
 
-use std::process::{Command, Stdio};
 use std::{collections::HashSet, convert::TryFrom, time::Duration};
 
 use crate::backend::realsense::rs2_process_frame::{FrameProc, FrameProcBlock, create_color_image};
@@ -118,7 +117,7 @@ impl RealsenseCam {
     }
 
     ///Get a colour image from the realsense camera
-    pub fn get_image(&mut self, filepath: &str) -> Result<&str, anyhow::Error> {
+    pub fn get_image(&mut self, filepath: &str) -> Result<String, anyhow::Error> {
         //Wait for a frame to arrive
         let frame = self.pipeline.wait(None)?;
         //Extract the first colour frame
@@ -133,8 +132,8 @@ impl RealsenseCam {
         let image = create_color_image(color_frame.first().unwrap())?;
 
         //Save the image
-        let fp = format!(".png", filepath);
-        image.save(fp)?;
+        let fp = format!("{}.png", filepath);
+        image.save(&fp)?;
 
         println!("Image saved!");
 

@@ -24,7 +24,7 @@ impl CamType {
         }
     }
 
-    pub fn get_colour_image(&self, filepath : &str) -> Result<&str, anyhow::Error>{
+    pub fn get_colour_image(&mut self, filepath : &str) -> Result<String, anyhow::Error>{
         match self{
             CamType::RealsenseCam(cam) => cam.get_colour_image(filepath),
         }
@@ -58,7 +58,7 @@ pub trait Required<T> {
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>;
 
     ///Save a colour image
-    fn get_colour_image(&mut self, filepath: &str ) -> Result<&str, anyhow::Error>{}
+    fn get_colour_image(&mut self, filepath: &str ) -> Result<String, anyhow::Error>;
 }
 
 impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
@@ -84,8 +84,8 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
         self.cam.get_intrinsics()
     }
 
-    fn get_colour_image(&self, filepath: &str ) -> Result<(), anyhow::Error>{
-        self.cam.get_colour_image(filepath)
+    fn get_colour_image(&mut self, filepath: &str ) -> Result<String, anyhow::Error>{
+        self.cam.get_image(filepath)
     }
 }
 
@@ -93,10 +93,8 @@ impl DepthCam<RealsenseCam> {
     pub fn connect_realsense(id: u32) -> Result<Self, anyhow::Error> {
         DepthCam::connect(id)
     }
-}
 
-impl DepthCam<T> {
     pub fn id(&self) -> u32{
-        self.id()
+        self.id
     }
 }
