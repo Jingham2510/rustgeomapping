@@ -158,6 +158,5 @@ impl RealsenseCam {
             0.0
         ))       
     }
-
    
 }
