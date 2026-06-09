@@ -1,3 +1,6 @@
+V0.2.8(09/07/26):
+-Expose id getter for enum CamType
+
 V0.2.7(09/7/26):
 -Implement generic get colour image
 -Modify realsense get image to return the string of the filepath

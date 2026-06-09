@@ -30,6 +30,12 @@ impl CamType {
         }
     }
 
+    pub fn id(&self) -> u32{
+        match self{
+            CamType::RealsenseCam(cam) => cam.id(),
+        }
+    }
+
 
 }
 
