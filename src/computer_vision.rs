@@ -113,3 +113,10 @@ pub fn calc_extrinsic(rvec : Vector::<f32>, tvec : Vector::<f32>) -> Matrix4<f32
 
     ext_matrix
 }
+
+
+///Wrapper to allow TRL subsystem controller to access without use of rust-openCV crates
+pub fn get_extrinsic_inv_from_aruco_4x4_250(filepath : &str, marker_ids : Vec<i32>,marker_coords : Vec<[f32; 3]>, intrinsic_info: IntrinsicInfo) -> Result<Matrix4<f32>, anyhow::Error>{
+
+   get_extrinsic_inv_from_aruco(filepath, marker_ids ,marker_coords, PredefinedDictionaryType::DICT_4X4_250, intrinsic_info)
+}

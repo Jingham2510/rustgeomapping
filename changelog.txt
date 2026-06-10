@@ -1,6 +1,9 @@
 V0.2.9():
 -Modify cargo manifest to only include opencv/relasense dependencies if sense enabled
 -Implement aruco tag detection function
+-Implement pose estimation from aruco tag detection
+-Implement extrinsic and inverse calculator from aruco tag detection
+-General cargo clippy changes
 
 V0.2.8(09/07/26):
 -Expose id getter for enum CamType
