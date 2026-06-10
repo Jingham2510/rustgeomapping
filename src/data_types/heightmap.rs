@@ -178,7 +178,7 @@ impl Heightmap {
         }
 
         if len == 1 {
-            return Heightmap::create_from_pcl_ref(&pcl_list[0], width, height);
+            Heightmap::create_from_pcl_ref(&pcl_list[0], width, height)
         } else {
             //Combine the pointclouds into one pointcloud
             let mut base_pcl = PointCloud::new();
@@ -188,7 +188,7 @@ impl Heightmap {
                 base_pcl.combine(pcl)
             }
             //Turn that pointcloud into a heightmap
-            return Heightmap::create_from_pcl(base_pcl, width, height);
+            Heightmap::create_from_pcl(base_pcl, width, height)
         }
     }
 
@@ -209,7 +209,7 @@ impl Heightmap {
 
             let bins_per_col: usize = ((bnds[3] - bnds[2]) / desired_bin_size) as usize;
 
-            return Heightmap::create_from_pcl_ref(&pcl_list[0], bins_per_row, bins_per_col);
+            Heightmap::create_from_pcl_ref(&pcl_list[0], bins_per_row, bins_per_col)
         } else {
             //Combine the pointclouds into one pointcloud
             let mut base_pcl = PointCloud::new();
@@ -226,7 +226,7 @@ impl Heightmap {
             let bins_per_col: usize = ((bnds[3] - bnds[2]) / desired_bin_size) as usize;
 
             //Turn that pointcloud into a heightmap
-            return Heightmap::create_from_pcl(base_pcl, bins_per_row, bins_per_col);
+            Heightmap::create_from_pcl(base_pcl, bins_per_row, bins_per_col)
         }
     }
 
@@ -526,13 +526,13 @@ impl Heightmap {
 
         //Iterate thorugh each row
         for row in self.cells.iter() {
-            let mut row_string = format!("");
+            let mut row_string = String::new();
 
             for cell in row {
                 row_string.push_str(&format!("{},", cell));
             }
 
-            row_string.push_str("\n");
+            row_string.push('\n');
 
             mat_string.push_str(&row_string);
         }

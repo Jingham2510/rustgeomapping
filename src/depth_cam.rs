@@ -40,7 +40,6 @@ impl CamType {
 }
 
 ///Generic depth camera implementation
-
 pub struct DepthCam<T> {
     cam: T,
     id: u32,

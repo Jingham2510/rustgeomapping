@@ -19,6 +19,12 @@ pub struct PointCloud {
     bounds: [f32; 6],
 }
 
+impl Default for PointCloud {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PointCloud {
     //Creates an empty point cloud with no information
     pub fn new() -> Self {
@@ -146,7 +152,7 @@ impl PointCloud {
         let mut z_max = -9999.0;
         let mut z_min = 9999.0;
 
-        for pnt in points.into_iter() {
+        for pnt in points.iter() {
             let x = pnt[0];
             let y = pnt[1];
             let z = pnt[2];

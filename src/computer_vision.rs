@@ -1,15 +1,14 @@
 ///A handful of useful computer vision algorithms for image processing using the rust opencv wrapper
-use nalgebra::{Matrix4, Matrix3};
-use anyhow::{Error, bail};
+use nalgebra::Matrix4;
+use anyhow::bail;
 
 use crate::data_types::intrinsic_info::IntrinsicInfo;
 
 use opencv::prelude::*;
 use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters};
-use opencv::imgcodecs::{imread, imwrite, IMREAD_COLOR, IMREAD_GRAYSCALE};
+use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE};
 use opencv::core::{Point2f, Point3f, Vector, Mat, MatTrait};
 use opencv::calib3d::{solve_pnp, rodrigues};
-use opencv::imgproc::{cvt_color, ColorConversionCodes};
 
 
 ///Caculate the inverse extrinsic matrix from an image
@@ -19,7 +18,7 @@ pub fn get_extrinsic_inv_from_aruco(filepath : &str, marker_ids : Vec<i32>,marke
     let (rvec, tvec) = estimate_pose_from_aruco(filepath, marker_ids, marker_coords, marker_type, intrinsic_info)?;
 
     //Calculate the extrinsic matrix from the rotation and translation vector
-    let mut extrinsic = calc_extrinsic(rvec, tvec);
+    let extrinsic = calc_extrinsic(rvec, tvec);
 
     //Invert the extrinsic and return
     Ok(extrinsic.try_inverse().unwrap())
@@ -54,7 +53,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     //Go through each of the detected ids
     for (i, id) in ids.iter().enumerate(){
         //Check if the detected id is in the list of marker ids
-        if marker_ids.iter().any(|x| *x == id){
+        if marker_ids.contains(&id){
 
             println!("Marker {:?} detected", id);
 

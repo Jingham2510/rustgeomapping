@@ -1,4 +1,4 @@
-pub mod analysis;
+
 pub mod data_types;
 
 
@@ -10,4 +10,7 @@ pub mod backend;
 pub mod depth_cam;
 #[cfg(feature = "sense")]
 pub mod computer_vision;
+
+#[cfg(feature = "analysis")]
+pub mod analysis;
 
