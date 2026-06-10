@@ -7,7 +7,7 @@ use crate::data_types::intrinsic_info::IntrinsicInfo;
 use opencv::prelude::*;
 use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters};
 use opencv::imgcodecs::{imread, imwrite, IMREAD_COLOR, IMREAD_GRAYSCALE};
-use opencv::core::{Point2f, Point3f, Vector};
+use opencv::core::{Point2f, Point3f, Vector, Mat, MatTrait};
 use opencv::calib3d::{solve_pnp, rodrigues};
 use opencv::imgproc::{cvt_color, ColorConversionCodes};
 
@@ -19,11 +19,10 @@ pub fn get_extrinsic_inv_from_aruco(filepath : &str, marker_ids : Vec<i32>,marke
     let (rvec, tvec) = estimate_pose_from_aruco(filepath, marker_ids, marker_coords, marker_type, intrinsic_info)?;
 
     //Calculate the extrinsic matrix from the rotation and translation vector
-    calc_extrinsic(rvec, tvec);
+    let mut extrinsic = calc_extrinsic(rvec, tvec);
 
     //Invert the extrinsic and return
-
-    todo!()
+    Ok(extrinsic.try_inverse().unwrap())
 }
 
 ///Estimates the translation and rotation from an image with aruco tags in
@@ -35,18 +34,16 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
 
 
     //Load the image in grayscale
-    let mut image = imread(filepath, IMREAD_GRAYSCALE)?;
+    let image = imread(filepath, IMREAD_GRAYSCALE)?;
 
 
     //Detect aruco tags
     let mut corners = Vector::<Vector<Point2f>>::new(); 
     let mut ids  = Vector::<i32>::new();
-
-
-
     aruco_detector.detect_markers_def(&image, &mut corners, &mut ids);
 
-    if ids.len() != marker_ids.len(){
+    //Check that enough tags were spotted
+    if ids.len() < marker_ids.len(){
         bail!("Not enough ids spotted")
     }
 
@@ -84,20 +81,35 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
 ///Generate an extrinsic transofmration matrix for rvec and tvec
 pub fn calc_extrinsic(rvec : Vector::<f32>, tvec : Vector::<f32>) -> Matrix4<f32>{
 
+
     //Calculate the rotation matrix from rvec
-    let mut rot_mat = Vector::<Vector<f32>>::new();
-    let mut jacobian = Vector::<Vector<f32>>::new();
+    let mut rot_mat = Mat::default();
+    let mut jacobian = Mat::default();
+
     rodrigues(&rvec, &mut rot_mat, &mut jacobian);
 
     println!("{:?}", rot_mat);
 
-
     //Create the base matrix
+    let mut ext_matrix = Matrix4::new(0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0);
 
+    //Input the rotation matrix into the transformation matrix
+    ext_matrix.m11 = *rot_mat.at_2d_mut::<f32>(0,0).unwrap();
+    ext_matrix.m12 = *rot_mat.at_2d_mut::<f32>(0,1).unwrap();
+    ext_matrix.m13 = *rot_mat.at_2d_mut::<f32>(0,2).unwrap();
+    ext_matrix.m21 = *rot_mat.at_2d_mut::<f32>(1,0).unwrap();
+    ext_matrix.m22 = *rot_mat.at_2d_mut::<f32>(1,1).unwrap();
+    ext_matrix.m23 = *rot_mat.at_2d_mut::<f32>(1,2).unwrap();
+    ext_matrix.m31 = *rot_mat.at_2d_mut::<f32>(2,0).unwrap();
+    ext_matrix.m32 = *rot_mat.at_2d_mut::<f32>(2,1).unwrap();
+    ext_matrix.m33 = *rot_mat.at_2d_mut::<f32>(2,2).unwrap();
 
+    //Input the translation vector into the transformation matrix
+    ext_matrix.m14 = tvec.get(0).unwrap();
+    ext_matrix.m24 = tvec.get(1).unwrap();
+    ext_matrix.m34 = tvec.get(2).unwrap();
+    ext_matrix.m44 = 1.0;
+    
 
-    //Input the rotation matrix and tvec into the matrix
-
-
-    todo!()
+    ext_matrix
 }
