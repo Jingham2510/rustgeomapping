@@ -12,7 +12,7 @@ use opencv::calib3d::{solve_pnp, rodrigues};
 
 
 ///Caculate the inverse extrinsic matrix from an image
-pub fn get_extrinsic_inv_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_coords : Vec<[f32; 3]>,  marker_type : PredefinedDictionaryType, intrinsic_info: IntrinsicInfo) -> Result<Matrix4<f32>, anyhow::Error>{
+pub fn get_extrinsic_inv_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_coords : Vec<[f32; 3]>,  marker_type : PredefinedDictionaryType, intrinsic_info: &IntrinsicInfo) -> Result<Matrix4<f32>, anyhow::Error>{
 
     //Estimate the pose from the image
     let (rvec, tvec) = estimate_pose_from_aruco(filepath, marker_ids, marker_coords, marker_type, intrinsic_info)?;
@@ -25,7 +25,7 @@ pub fn get_extrinsic_inv_from_aruco(filepath : &str, marker_ids : Vec<i32>,marke
 }
 
 ///Estimates the translation and rotation from an image with aruco tags in
-pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_coords : Vec<[f32; 3]>, marker_type : PredefinedDictionaryType, intrinsic_info: IntrinsicInfo) -> Result<(Vector::<f32>, Vector::<f32>), anyhow::Error> {
+pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_coords : Vec<[f32; 3]>, marker_type : PredefinedDictionaryType, intrinsic_info: &IntrinsicInfo) -> Result<(Vector::<f32>, Vector::<f32>), anyhow::Error> {
 
      //Load the aruco dictionary
      let aruco_dict = get_predefined_dictionary(marker_type)?;
@@ -115,7 +115,7 @@ pub fn calc_extrinsic(rvec : Vector::<f32>, tvec : Vector::<f32>) -> Result<Matr
 
 
 ///Wrapper to allow TRL subsystem controller to access without use of rust-openCV crates
-pub fn get_extrinsic_inv_from_aruco_4x4_250(filepath : &str, marker_ids : Vec<i32>,marker_coords : Vec<[f32; 3]>, intrinsic_info: IntrinsicInfo) -> Result<Matrix4<f32>, anyhow::Error>{
+pub fn get_extrinsic_inv_from_aruco_4x4_250(filepath : &str, marker_ids : Vec<i32>,marker_coords : Vec<[f32; 3]>, intrinsic_info: &IntrinsicInfo) -> Result<Matrix4<f32>, anyhow::Error>{
 
    get_extrinsic_inv_from_aruco(filepath, marker_ids ,marker_coords, PredefinedDictionaryType::DICT_4X4_250, intrinsic_info)
 }
