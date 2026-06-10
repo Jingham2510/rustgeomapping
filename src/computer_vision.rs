@@ -18,9 +18,9 @@ pub fn get_extrinsic_inv_from_aruco(filepath : &str, marker_ids : Vec<i32>,marke
     let (rvec, tvec) = estimate_pose_from_aruco(filepath, marker_ids, marker_coords, marker_type, intrinsic_info)?;
 
     //Calculate the extrinsic matrix from the rotation and translation vector
-    let extrinsic = calc_extrinsic(rvec, tvec);
+    let extrinsic = calc_extrinsic(rvec, tvec)?;
 
-    //Invert the extrinsic and return
+    //Invert the extrinsic and return--inverse guaranteed as square matrix
     Ok(extrinsic.try_inverse().unwrap())
 }
 
@@ -39,7 +39,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     //Detect aruco tags
     let mut corners = Vector::<Vector<Point2f>>::new(); 
     let mut ids  = Vector::<i32>::new();
-    aruco_detector.detect_markers_def(&image, &mut corners, &mut ids);
+    aruco_detector.detect_markers_def(&image, &mut corners, &mut ids)?;
 
     //Check that enough tags were spotted
     if ids.len() < marker_ids.len(){
@@ -72,20 +72,20 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     //Estimate the pose from the aruco tags
     let mut rvec = Vector::<f32>::new();
     let mut tvec = Vector::<f32>::new();
-    solve_pnp(&object_points, &image_points, &intrinsic_info.as_opencv_mat(), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 2);
+    solve_pnp(&object_points, &image_points, &intrinsic_info.as_opencv_mat(), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 2)?;
 
     Ok((rvec, tvec))
 }
 
 ///Generate an extrinsic transofmration matrix for rvec and tvec
-pub fn calc_extrinsic(rvec : Vector::<f32>, tvec : Vector::<f32>) -> Matrix4<f32>{
+pub fn calc_extrinsic(rvec : Vector::<f32>, tvec : Vector::<f32>) -> Result<Matrix4<f32>, anyhow::Error>{
 
 
     //Calculate the rotation matrix from rvec
     let mut rot_mat = Mat::default();
     let mut jacobian = Mat::default();
 
-    rodrigues(&rvec, &mut rot_mat, &mut jacobian);
+    rodrigues(&rvec, &mut rot_mat, &mut jacobian)?;
 
     println!("{:?}", rot_mat);
 
@@ -110,7 +110,7 @@ pub fn calc_extrinsic(rvec : Vector::<f32>, tvec : Vector::<f32>) -> Matrix4<f32
     ext_matrix.m44 = 1.0;
     
 
-    ext_matrix
+    Ok(ext_matrix)
 }
 
 

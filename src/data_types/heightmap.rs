@@ -870,7 +870,7 @@ pub enum MapGenOpt {
 }
 
 ///Transforms 3 point data into a 2.5d heightmap ( where the 3rd data point is the "height"/intensity)
-pub fn trans_to_heightmap(
+fn trans_to_heightmap(
     data: Vec<[f32; 3]>,
     bins_per_row: usize,
     bins_per_col: usize,

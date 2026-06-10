@@ -52,7 +52,6 @@ impl fmt::Display for DepthCam<RealsenseCam> {
 }
 
 ///The minimum required traits for a depth camera to be useful
-
 pub trait Required<T> {
     ///Connect to the camera
     fn connect(id: u32) -> Result<DepthCam<T>, anyhow::Error>;
