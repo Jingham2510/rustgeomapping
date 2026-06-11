@@ -72,7 +72,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     //Estimate the pose from the aruco tags
     let mut rvec = Vector::<f32>::new();
     let mut tvec = Vector::<f32>::new();
-    solve_pnp(&object_points, &image_points, &intrinsic_info.as_opencv_mat(), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 2)?;
+    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 2)?;
 
     Ok((rvec, tvec))
 }
@@ -118,4 +118,26 @@ pub fn calc_extrinsic(rvec : Vector::<f32>, tvec : Vector::<f32>) -> Result<Matr
 pub fn get_extrinsic_inv_from_aruco_4x4_250(filepath : &str, marker_ids : Vec<i32>,marker_coords : Vec<[f32; 3]>, intrinsic_info: &IntrinsicInfo) -> Result<Matrix4<f32>, anyhow::Error>{
 
    get_extrinsic_inv_from_aruco(filepath, marker_ids ,marker_coords, PredefinedDictionaryType::DICT_4X4_250, intrinsic_info)
+}
+
+///Convert intrinsic info to a opencv matrix
+fn intrinsic_to_opencv_mat(intrinsic : &IntrinsicInfo) -> Mat{
+
+        //Define the empty matrix -- 5 is the f32 type
+         let mut mat = unsafe{
+            Mat::new_rows_cols(3, 3, 5).unwrap()  
+        };
+
+
+        //Set the opencv matrix values
+        *mat.at_2d_mut::<f32>(0, 0).unwrap() = intrinsic.focal_length_x();
+        *mat.at_2d_mut::<f32>(0, 1).unwrap() = intrinsic.skew();
+        *mat.at_2d_mut::<f32>(0, 2).unwrap() = intrinsic.principal_off_x();
+
+        *mat.at_2d_mut::<f32>(1, 1).unwrap() = intrinsic.focal_length_y();
+        *mat.at_2d_mut::<f32>(1, 2).unwrap() = intrinsic.principal_off_y();
+
+        *mat.at_2d_mut::<f32>(2, 2).unwrap() = 1.0;
+                
+        mat
 }
