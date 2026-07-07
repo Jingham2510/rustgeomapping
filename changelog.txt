@@ -1,3 +1,6 @@
+V0.2.11 (07/07/26):
+-Now print camera info as pc connects to it
+
 V0.2.10(10/06/26):
 -IntrinsicInfo now input as shared reference for computer vision functions
 
