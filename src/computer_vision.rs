@@ -64,6 +64,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
 
             //Add the detected marker center
             let detected_center = corners.get(i)?.get(0)?;
+            println!("{:?}", detected_center);
             image_points.push(detected_center)   
         }
     }
