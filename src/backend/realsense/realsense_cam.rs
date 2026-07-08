@@ -163,7 +163,7 @@ impl RealsenseCam {
     }
 
     ///hardware reset each of the connected devices
-    pub fn reset_all(&self) -> Result<(), anyhow::Error>{
+    pub fn reset_all() -> Result<(), anyhow::Error>{
 
         // Check for depth or color-compatible devices.
         let mut queried_devices = HashSet::new();
