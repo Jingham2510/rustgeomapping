@@ -1,6 +1,6 @@
 
 
-V0.2.13-0.2.14(08/07/26):
+V0.2.13-0.2.15(08/07/26):
 -Add realsense feature to reset hardware of all connected devices
 -and related bugfixes
 

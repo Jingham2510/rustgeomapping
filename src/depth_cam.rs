@@ -96,8 +96,8 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
         self.cam.get_image(filepath)
     }
 
-    fn reset_all(){
-        RealsenseCam::reset_all();
+    fn reset_all() -> Result<(), anyhow::Error>{
+        RealsenseCam::reset_all()
     }
 
 }

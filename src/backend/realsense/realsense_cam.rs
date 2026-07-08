@@ -173,7 +173,7 @@ impl RealsenseCam {
         ensure!(!devices.is_empty(), "No devices found");
 
         //Go through each device and perform a hardware reset
-        for dev in devices.iter(){
+        for dev in devices{
             dev.hardware_reset();
         }
 
