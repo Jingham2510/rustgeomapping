@@ -63,6 +63,10 @@ pub trait Required<T> {
 
     ///Save a colour image
     fn get_colour_image(&mut self, filepath: &str ) -> Result<String, anyhow::Error>;
+
+    ///Reset all connected hardware
+    fn reset_all() -> Result<(), anyhow::Error>;
+
 }
 
 impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
@@ -91,6 +95,11 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
     fn get_colour_image(&mut self, filepath: &str ) -> Result<String, anyhow::Error>{
         self.cam.get_image(filepath)
     }
+
+    fn reset_all(){
+        RealsenseCam::reset_all();
+    }
+
 }
 
 impl DepthCam<RealsenseCam> {

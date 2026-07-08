@@ -34,6 +34,8 @@ impl RealsenseCam {
     pub fn initialise_raw(cam_no: usize) -> Result<Self, anyhow::Error> {
         let (pipeline, config) = Self::setup(cam_no)?;
 
+        
+
         Ok(Self {
             cam_no,
             //Start the pipeline in the camera object
@@ -51,17 +53,18 @@ impl RealsenseCam {
         let devices = context.query_devices(queried_devices);
         ensure!(!devices.is_empty(), "No devices found");
 
-        //If the provided camera number is too high - bail
+        //If the provided camera number is too high - bail  
         if cam_no > devices.len() {
             bail!("Invalid camera selection");
         }
 
-        
+        /*
         println!("devs: {:?}", devices);
         println!(
             "Selected: {:?}",
             devices[cam_no].info(Rs2CameraInfo::SerialNumber)
         );
+        */
         
 
         //Try and create the inactive pipeline
@@ -158,5 +161,24 @@ impl RealsenseCam {
             0.0
         ))       
     }
+
+    ///hardware reset each of the connected devices
+    pub fn reset_all(&self) -> Result<(), anyhow::Error>{
+
+        // Check for depth or color-compatible devices.
+        let mut queried_devices = HashSet::new();
+        queried_devices.insert(Rs2ProductLine::D400);
+        let context = Context::new()?;
+        let devices = context.query_devices(queried_devices);
+        ensure!(!devices.is_empty(), "No devices found");
+
+        //Go through each device and perform a hardware reset
+        for dev in devices.iter(){
+            dev.hardware_reset();
+        }
+
+        Ok(())
+    }
+
    
 }
