@@ -79,8 +79,8 @@ impl RealsenseCam {
             .disable_all_streams()?
             //.enable_all_streams()?;
             //Height of 0 indicates to realsense that it should select the most appropriate height itself
-            .enable_stream(Rs2StreamKind::Depth, None, 1280, 0, Rs2Format::Z16, 30)?
-            .enable_stream(Rs2StreamKind::Color, None, 1280, 0, Rs2Format::Rgb8, 30)?;
+            .enable_stream(Rs2StreamKind::Depth, None, 848, 0, Rs2Format::Z16, 15)?
+            .enable_stream(Rs2StreamKind::Color, None, 1280, 0, Rs2Format::Rgb8, 15)?;
 
         Ok((pipeline, config))
     }

@@ -1,8 +1,9 @@
 
 
-V0.2.13-0.2.15(08/07/26):
+V0.2.13-0.2.16(08/07/26):
 -Add realsense feature to reset hardware of all connected devices
 -and related bugfixes
+-update realsense initialisation config
 
 V0.2.12 (07/07/26):
 -Now print camera info as pc connects to it
