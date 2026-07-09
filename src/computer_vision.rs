@@ -97,7 +97,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     draw_detected_markers(&mut image, &corners, &ids, VecN::new(256.0, 256.0, 0.0, 0.0));
 
     //Draw the estimate frame axes
-    draw_frame_axes( &mut image, &intrinsic_to_opencv_mat(intrinsic_info),  &Vector::<f32>::new(), &rvec, &tvec, 0.5, 2);
+    draw_frame_axes( &mut image, &intrinsic_to_opencv_mat(intrinsic_info),  &Vector::<f32>::new(), &rvec, &tvec, 0.1, 2);
 
 
       //Save the modified image
