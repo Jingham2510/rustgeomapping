@@ -69,7 +69,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     aruco_detector.detect_markers_def(&image, &mut corners, &mut ids)?;
 
     //Check that enough tags were spotted
-    if ids.len() < marker_ids.len(){
+    if ids.len() < marker_id_vec.len(){
         bail!("Not enough ids spotted")
     }
 
