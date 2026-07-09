@@ -8,7 +8,7 @@ use opencv::prelude::*;
 use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags, IMREAD_COLOR};
 use opencv::core::{Point2i, Point2f, Point3f, Vector, Mat, MatTrait, Scalar, VecN};
-use opencv::calib3d::{solve_pnp, rodrigues, draw_frame_axes, SOLVEPNP_IPPE};
+use opencv::calib3d::{solve_pnp, rodrigues, draw_frame_axes, SOLVEPNP_ITERATIVE};
 
 
 
@@ -38,12 +38,12 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     let mut marker_corners = Vector::<Vector<Point3f>>::new();
     for coord in marker_coords{
         let mut marker = Vector::<Point3f>::new();      
-        
 
+        //System is downwards y
         marker.push(Point3f::new(coord[0] - marker_size, coord[1] + marker_size, coord[2]));
-        marker.push(Point3f::new(coord[0] + marker_size, coord[1] + marker_size, coord[2]));
-        marker.push(Point3f::new(coord[0] + marker_size, coord[1] - marker_size, coord[2]));
         marker.push(Point3f::new(coord[0] - marker_size, coord[1] - marker_size, coord[2]));
+        marker.push(Point3f::new(coord[0] + marker_size, coord[1] - marker_size, coord[2]));
+        marker.push(Point3f::new(coord[0] + marker_size, coord[1] + marker_size, coord[2]));
         
 
 
@@ -90,8 +90,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     let mut rvec = Vector::<f32>::new();
     let mut tvec = Vector::<f32>::new();
 
-    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::from_slice(&[0.0, 0.0, 0.0, 0.0]), &mut rvec, &mut tvec, false, SOLVEPNP_IPPE)?;
-
+    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::from_slice(&[0.0, 0.0, 0.0, 0.0]), &mut rvec, &mut tvec, false, SOLVEPNP_ITERATIVE)?;
 
 
     
@@ -118,7 +117,7 @@ pub fn calc_extrinsic(rvec : Vector::<f32>, tvec : Vector::<f32>) -> Result<Matr
 
     rodrigues(&rvec, &mut rot_mat, &mut jacobian)?;
 
-    println!("{:?}", rot_mat);
+    println!("rot: {}", rot_mat);
 
     //Create the base matrix
     let mut ext_matrix = Matrix4::new(0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0);
