@@ -98,7 +98,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     dist.push(0.0);
     dist.push(0.0);
 
-    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &, &mut rvec, &mut tvec, false, 4)?;
+    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &dist, &mut rvec, &mut tvec, false, 4)?;
 
 
 
