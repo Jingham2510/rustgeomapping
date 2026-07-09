@@ -83,7 +83,15 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     board.match_image_points(&corners, &ids, &mut object_points, &mut image_points);
   
 
-  
+    println!("Object points:");
+for p in object_points.iter() {
+    println!("{:?}", p);
+}
+
+println!("Image points:");
+for p in image_points.iter() {
+    println!("{:?}", p);
+}
 
 
     
