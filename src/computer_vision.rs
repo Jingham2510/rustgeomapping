@@ -6,9 +6,11 @@ use crate::data_types::intrinsic_info::IntrinsicInfo;
 
 use opencv::prelude::*;
 use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters};
-use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE};
+use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags};
 use opencv::core::{Point2f, Point3f, Vector, Mat, MatTrait};
 use opencv::calib3d::{solve_pnp, rodrigues};
+use opencv::imgproc::{line, LineTypes};
+use opencv::viz::Color;
 
 
 ///Caculate the inverse extrinsic matrix from an image
@@ -33,7 +35,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
 
 
     //Load the image in grayscale
-    let image = imread(filepath, IMREAD_GRAYSCALE)?;
+    let mut image = imread(filepath, IMREAD_GRAYSCALE)?;
 
 
     //Detect aruco tags
@@ -66,9 +68,22 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
             let detected_center_x = (corners.get(i)?.get(0)?.x + corners.get(i)?.get(1)?.x + corners.get(i)?.get(2)?.x +corners.get(i)?.get(2)?.x)/4.0;
             let detected_center_y = (corners.get(i)?.get(0)?.y + corners.get(i)?.get(1)?.y + corners.get(i)?.get(2)?.y +corners.get(i)?.get(2)?.y)/4.0;
             println!("x:{} y:{}", detected_center_x, detected_center_y);
-            image_points.push(Point2f::new(detected_center_x, detected_center_y));   
+
+            //Draw the bounding boxes for the aruco tags      
+            line(&img, corners.get(i)?.get(0)?, corner.get(i)?.get(1?), Color::green(), 1, LineTypes::LINE_8, 0);
+            line(&img, corners.get(i)?.get(1)?, corner.get(i)?.get(2?), Color::green(), 1, LineTypes::LINE_8, 0);
+            line(&img, corners.get(i)?.get(2)?, corner.get(i)?.get(3?), Color::green(), 1, LineTypes::LINE_8, 0);
+            line(&img, corners.get(i)?.get(3)?, corner.get(i)?.get(0?), Color::green(), 1, LineTypes::LINE_8, 0);
+
+            let center = Point2f::new(detected_center_x, detected_center_y);
+
+            image_points.push(center);   
         }
     }
+
+    //Save the modified image
+    imwrite(filepath, image, vec![]);
+
 
     
     //Estimate the pose from the aruco tags
