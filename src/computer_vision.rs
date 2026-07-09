@@ -86,7 +86,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     }
 
     //Save the modified image
-    imwrite(filepath, image, vec![]);
+    imwrite(filepath, &image, &Vector<i32>::new());
 
 
     
