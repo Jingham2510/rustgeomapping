@@ -63,9 +63,9 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
             object_points.push(Point3f::new(marker_coords[marker_index][0], marker_coords[marker_index][1], marker_coords[marker_index][2]));
 
             //Add the detected marker center
-            let detected_center_x = (corners.get(i)?.get(0)?.x + corners.get(i)?.get(1)?.x + corners.get(i)?.get(2)?.x +corners.get(i)?.get(2)?.x)/4;
-            let detected_center_y = (corners.get(i)?.get(0)?.y + corners.get(i)?.get(1)?.y + corners.get(i)?.get(2)?.y +corners.get(i)?.get(2)?.y)/4;
-            println!("{:?}", detected_center);
+            let detected_center_x = (corners.get(i)?.get(0)?.x + corners.get(i)?.get(1)?.x + corners.get(i)?.get(2)?.x +corners.get(i)?.get(2)?.x)/4.0;
+            let detected_center_y = (corners.get(i)?.get(0)?.y + corners.get(i)?.get(1)?.y + corners.get(i)?.get(2)?.y +corners.get(i)?.get(2)?.y)/4.0;
+            println!("x:{} y:{}", detected_center_x, detected_center_y);
             image_points.push(Point2f::new(detected_center_x, detected_center_y));   
         }
     }
