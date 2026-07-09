@@ -8,7 +8,7 @@ use opencv::prelude::*;
 use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags};
 use opencv::core::{Point2i, Point2f, Point3f, Vector, Mat, MatTrait, Scalar, VecN};
-use opencv::calib3d::{solve_pnp, rodrigues, draw_frame_axes};
+use opencv::calib3d::{solve_pnp, rodrigues, draw_frame_axes, SOLVEPNP_IPPE};
 
 
 
@@ -42,9 +42,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
 
         marker.push(Point3f::new(coord[0] + marker_size, coord[1] + marker_size, coord[2]));
         marker.push(Point3f::new(coord[0] + marker_size, coord[1] - marker_size, coord[2]));
-
         marker.push(Point3f::new(coord[0] - marker_size, coord[1] - marker_size, coord[2]));
-
         marker.push(Point3f::new(coord[0] - marker_size, coord[1] + marker_size, coord[2]));
         
 
@@ -82,8 +80,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     let mut image_points = Vector::<Point2f>::new();
 
     //Match up the board and image points
-    board.match_image_points(&corners, &ids, &mut object_points, &mut image_points);
-  
+    board.match_image_points(&corners, &ids, &mut object_points, &mut image_points);  
 
 
     
@@ -91,7 +88,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     let mut rvec = Vector::<f32>::new();
     let mut tvec = Vector::<f32>::new();
 
-    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 4)?;
+    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, SOLVEPNP_IPPE)?;
 
 
 
