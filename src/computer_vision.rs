@@ -87,7 +87,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     let mut rvec = Vector::<f32>::new();
     let mut tvec = Vector::<f32>::new();
 
-    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, SOLVEPNP_IPPE)?;
+    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::from_slice(&[0.0, 0.0, 0.0, 0.0]), &mut rvec, &mut tvec, false, SOLVEPNP_IPPE)?;
 
 
 
