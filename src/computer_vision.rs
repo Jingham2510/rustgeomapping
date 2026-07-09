@@ -77,7 +77,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     }
     
     //Draw the detected markers
-    draw_detected_markers(&image, &corners, &ids, VecN::new(256.0, 256.0, 0.0, 0.0));
+    draw_detected_markers(&mut image, &corners, &ids, VecN::new(256.0, 256.0, 0.0, 0.0));
 
     //Save the modified image
     imwrite(filepath, &image, &Vector::<i32>::new());
