@@ -37,13 +37,12 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     let marker_size = 0.29 /2.0;
     let mut marker_corners = Vector::<Vector<Point3f>>::new();
     for coord in marker_coords{
-        let mut marker = Vector::<Point3f>::new();       
-
-
+        let mut marker = Vector::<Point3f>::new();      
+        
+        marker.push(Point3f::new(coord[0] - marker_size, coord[1] + marker_size, coord[2]));
+        marker.push(Point3f::new(coord[0] - marker_size, coord[1] - marker_size, coord[2]));
         marker.push(Point3f::new(coord[0] + marker_size, coord[1] + marker_size, coord[2]));
         marker.push(Point3f::new(coord[0] + marker_size, coord[1] - marker_size, coord[2]));
-        marker.push(Point3f::new(coord[0] - marker_size, coord[1] - marker_size, coord[2]));
-        marker.push(Point3f::new(coord[0] - marker_size, coord[1] + marker_size, coord[2]));
         
 
 
