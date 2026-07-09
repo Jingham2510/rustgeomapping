@@ -5,7 +5,7 @@ use anyhow::bail;
 use crate::data_types::intrinsic_info::IntrinsicInfo;
 
 use opencv::prelude::*;
-use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board};
+use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board, draw_frame_axes};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags};
 use opencv::core::{Point2i, Point2f, Point3f, Vector, Mat, MatTrait, Scalar, VecN};
 use opencv::calib3d::{solve_pnp, rodrigues};
@@ -80,12 +80,8 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     //Match up the board and image points
     board.match_image_points(&corners, &ids, &mut object_points, &mut image_points);
   
-    
-    //Draw the detected markers
-    draw_detected_markers(&mut image, &corners, &ids, VecN::new(256.0, 256.0, 0.0, 0.0));
 
-    //Save the modified image
-    imwrite(filepath, &image, &Vector::<i32>::new());
+  
 
 
     
@@ -93,6 +89,19 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     let mut rvec = Vector::<f32>::new();
     let mut tvec = Vector::<f32>::new();
     solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 1)?;
+
+
+
+    
+    //Draw the detected markers
+    draw_detected_markers(&mut image, &corners, &ids, VecN::new(256.0, 256.0, 0.0, 0.0));
+
+    //Draw the estimate frame axes
+    draw_frame_axes( &mut image, &intrinsic_to_opencv_mat(intrinsic_info),  &Vector::<f32>::new(), &rvec, &tvec, 0.5, 2);
+
+
+      //Save the modified image
+    imwrite(filepath, &image, &Vector::<i32>::new());
 
     Ok((rvec, tvec))
 }
