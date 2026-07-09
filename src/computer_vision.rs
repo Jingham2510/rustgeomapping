@@ -6,7 +6,7 @@ use crate::data_types::intrinsic_info::IntrinsicInfo;
 
 use opencv::prelude::*;
 use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board};
-use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags};
+use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags, IMREAD_COLOR};
 use opencv::core::{Point2i, Point2f, Point3f, Vector, Mat, MatTrait, Scalar, VecN};
 use opencv::calib3d::{solve_pnp, rodrigues, draw_frame_axes, SOLVEPNP_IPPE};
 
@@ -61,13 +61,15 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
 
 
     //Load the image in grayscale
-    let mut image = imread(filepath, IMREAD_GRAYSCALE)?;
+    let mut image = imread(filepath, IMREAD_COLOR)?;
+
+    let mut gray_image = imread(filepath, IMREAD_GRAYSCALE)?;
 
 
     //Detect aruco tags
     let mut corners = Vector::<Vector<Point2f>>::new(); 
     let mut ids  = Vector::<i32>::new();
-    aruco_detector.detect_markers_def(&image, &mut corners, &mut ids)?;
+    aruco_detector.detect_markers_def(&gray_image, &mut corners, &mut ids)?;
 
     //Check that enough tags were spotted
     if ids.len() < marker_id_vec.len(){
