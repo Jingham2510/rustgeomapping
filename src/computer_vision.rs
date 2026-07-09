@@ -5,7 +5,7 @@ use anyhow::bail;
 use crate::data_types::intrinsic_info::IntrinsicInfo;
 
 use opencv::prelude::*;
-use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers};
+use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags};
 use opencv::core::{Point2i, Point2f, Point3f, Vector, Mat, MatTrait, Scalar, VecN};
 use opencv::calib3d::{solve_pnp, rodrigues};
@@ -33,6 +33,26 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
      let aruco_detector = ArucoDetector::new(&aruco_dict, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
 
 
+    //Create the corner objects
+    let marker_size = 0.29 /2.0;
+    let mut marker_corners = Vector::<Vector<Point3f>>::new();
+    for coord in marker_coords{
+        let mut marker = Vector<Point3f>::new();
+
+        marker.push(Point3f::new(coord[0] - marker_size, coord[1] + marker_size, coord[2]));
+        marker.push(Point3f::new(coord[0] + marker_size, coord[1] + marker_size, coord[2]));
+        marker.push(Point3f::new(coord[0] + marker_size, coord[1] - marker_size, coord[2]));
+        marker.push(Point3f::new(coord[0] - marker_size, coord[1] - marker_size, coord[2]));
+
+
+        marker_corners.push(marker);
+    }
+
+
+    //Create the board object
+    let board = Board::new(&marker_corners, aruco_dict, marker_ids);
+
+
     //Load the image in grayscale
     let mut image = imread(filepath, IMREAD_GRAYSCALE)?;
 
@@ -51,30 +71,9 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     let mut object_points = Vector::<Point3f>::new();
     let mut image_points = Vector::<Point2f>::new();
 
-    //Go through each of the detected ids
-    for (i, id) in ids.iter().enumerate(){
-        //Check if the detected id is in the list of marker ids
-        if marker_ids.contains(&id){
-
-            println!("Marker {:?} detected", id);
-
-            //Get the marker id index - guaranteed to be in the array as we already checked
-            let marker_index = marker_ids.iter().position(|&x| x == id).unwrap();            
-            //Add the marker center            
-            object_points.push(Point3f::new(marker_coords[marker_index][0], marker_coords[marker_index][1], marker_coords[marker_index][2]));
-
-            //Add the detected marker center
-            let detected_center_x = (corners.get(i)?.get(0)?.x + corners.get(i)?.get(1)?.x + corners.get(i)?.get(2)?.x +corners.get(i)?.get(2)?.x)/4.0;
-            let detected_center_y = (corners.get(i)?.get(0)?.y + corners.get(i)?.get(1)?.y + corners.get(i)?.get(2)?.y +corners.get(i)?.get(2)?.y)/4.0;
-            println!("x:{} y:{}", detected_center_x, detected_center_y);
-
-          
-
-            let center = Point2f::new(detected_center_x, detected_center_y);
-
-            image_points.push(center);   
-        }
-    }
+    //Match up the board and image points
+    board.match_image_points(&corners, &ids, &mut object_points, &mut image_points);
+  
     
     //Draw the detected markers
     draw_detected_markers(&mut image, &corners, &ids, VecN::new(256.0, 256.0, 0.0, 0.0));
@@ -87,7 +86,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     //Estimate the pose from the aruco tags
     let mut rvec = Vector::<f32>::new();
     let mut tvec = Vector::<f32>::new();
-    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 3)?;
+    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 1)?;
 
     Ok((rvec, tvec))
 }
