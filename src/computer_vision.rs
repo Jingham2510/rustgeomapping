@@ -38,10 +38,10 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     let mut marker_corners = Vector::<Vector<Point3f>>::new();
     for coord in marker_coords{
         let mut marker = Vector::<Point3f>::new();
+       
 
-
-        marker.push(Point3f::new(coord[0] - marker_size, coord[1] - marker_size, coord[2]));
         marker.push(Point3f::new(coord[0] - marker_size, coord[1] + marker_size, coord[2]));
+        marker.push(Point3f::new(coord[0] - marker_size, coord[1] - marker_size, coord[2]));
         marker.push(Point3f::new(coord[0] + marker_size, coord[1] + marker_size, coord[2]));
         marker.push(Point3f::new(coord[0] + marker_size, coord[1] - marker_size, coord[2]));
         
@@ -90,7 +90,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     //Estimate the pose from the aruco tags
     let mut rvec = Vector::<f32>::new();
     let mut tvec = Vector::<f32>::new();
-    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 1)?;
+    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 4)?;
 
 
 
