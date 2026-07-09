@@ -90,7 +90,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
     //Estimate the pose from the aruco tags
     let mut rvec = Vector::<f32>::new();
     let mut tvec = Vector::<f32>::new();
-    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 8)?;
+    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::new(), &mut rvec, &mut tvec, false, 4)?;
 
 
 
@@ -165,9 +165,12 @@ fn intrinsic_to_opencv_mat(intrinsic : &IntrinsicInfo) -> Mat{
         *mat.at_2d_mut::<f32>(0, 1).unwrap() = intrinsic.skew();
         *mat.at_2d_mut::<f32>(0, 2).unwrap() = intrinsic.principal_off_x();
 
+        *mat.at_2d_mut::<f32>(1, 0).unwrap() = 0.0;
         *mat.at_2d_mut::<f32>(1, 1).unwrap() = intrinsic.focal_length_y();
         *mat.at_2d_mut::<f32>(1, 2).unwrap() = intrinsic.principal_off_y();
 
+        *mat.at_2d_mut::<f32>(2, 0).unwrap() = 0.0;
+        *mat.at_2d_mut::<f32>(2, 1).unwrap() = 0.0;
         *mat.at_2d_mut::<f32>(2, 2).unwrap() = 1.0;
                 
         mat
