@@ -7,7 +7,7 @@ use crate::data_types::intrinsic_info::IntrinsicInfo;
 use opencv::prelude::*;
 use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags};
-use opencv::core::{Point2f, Point3f, Vector, Mat, MatTrait, Scalar};
+use opencv::core::{Point2i, Point2f, Point3f, Vector, Mat, MatTrait, Scalar, VecN};
 use opencv::calib3d::{solve_pnp, rodrigues};
 use opencv::imgproc::{line};
 
@@ -69,11 +69,15 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
             let detected_center_y = (corners.get(i)?.get(0)?.y + corners.get(i)?.get(1)?.y + corners.get(i)?.get(2)?.y +corners.get(i)?.get(2)?.y)/4.0;
             println!("x:{} y:{}", detected_center_x, detected_center_y);
 
-            //Draw the bounding boxes for the aruco tags      
-            line(&image, corners.get(i)?.get(0)?.into(), corners.get(i)?.get(1)?.into(), [0,256,0,256], 1, 8, 0);
-            line(&image, corners.get(i)?.get(1)?.into(), corners.get(i)?.get(2)?.into(), [0,256,0,256], 1, 8, 0);
-            line(&image, corners.get(i)?.get(2)?.into(), corners.get(i)?.get(3)?.into(),[0,256,0,256], 1, 8, 0);
-            line(&image, corners.get(i)?.get(3)?.into(), corners.get(i)?.get(0)?.into(), [0,256,0,256], 1, 8, 0);
+            //Draw the bounding boxes for the aruco tags  
+            let top_left = Point2i::new(corners.get(i)?.get(0)?.x as i32, corners.get(i)?.get(0)?.y as i32); 
+            let top_right = Point2i::new(corners.get(i)?.get(1)?.x as i32, corners.get(i)?.get(1)?.y as i32); 
+            let bottom_left = Point2i::new(corners.get(i)?.get(2)?.x as i32, corners.get(i)?.get(2)?.y as i32); 
+            let bottom_right = Point2i::new(corners.get(i)?.get(3)?.x as i32, corners.get(i)?.get(3)?.y as i32); 
+            line(&mut image, top_left, top_right, VecN::new(0.0, 256.0, 0.0, 256.0), 1, 8, 0);
+            line(&mut image, top_right, bottom_right, VecN::new(0.0, 256.0, 0.0, 256.0), 1, 8, 0);
+            line(&mut image, bottom_right, bottom_left,VecN::new(0.0, 256.0, 0.0, 256.0), 1, 8, 0);
+            line(&mut image, bottom_left, top_left, VecN::new(0.0, 256.0, 0.0, 256.0), 1, 8, 0);
 
             let center = Point2f::new(detected_center_x, detected_center_y);
 
