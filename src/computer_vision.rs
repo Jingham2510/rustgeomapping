@@ -50,7 +50,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
 
 
     //Create the board object
-    let board = Board::new(&marker_corners, aruco_dict, marker_ids);
+    let board = Board::new(&marker_corners, aruco_dict, marker_ids)?;
 
 
     //Load the image in grayscale
