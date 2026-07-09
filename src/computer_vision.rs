@@ -117,7 +117,7 @@ pub fn calc_extrinsic(rvec : Vector::<f32>, tvec : Vector::<f32>) -> Result<Matr
 
     rodrigues(&rvec, &mut rot_mat, &mut jacobian)?;
 
-    println!("rot: {}", rot_mat);
+    println!("rot: {:?}", rot_mat);
 
     //Create the base matrix
     let mut ext_matrix = Matrix4::new(0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0);
