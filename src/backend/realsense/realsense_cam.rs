@@ -34,8 +34,6 @@ impl RealsenseCam {
     pub fn initialise_raw(cam_no: usize) -> Result<Self, anyhow::Error> {
         let (pipeline, config) = Self::setup(cam_no)?;
 
-        
-
         Ok(Self {
             cam_no,
             //Start the pipeline in the camera object
