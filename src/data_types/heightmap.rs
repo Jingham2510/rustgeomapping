@@ -422,7 +422,7 @@ impl Heightmap {
     }
 
     ///Get the maximum cell distance
-    fn get_max(&mut self) -> f32 {
+    pub fn get_max(&mut self) -> f32 {
         //Skip the first as they contain plenty of nans
         let mut skip_first_row = true;
         let mut skip_first_column = true;
@@ -462,7 +462,7 @@ impl Heightmap {
     }
 
     ///Get the minimum cell distance
-    fn get_min(&mut self) -> f32 {
+    pub fn get_min(&mut self) -> f32 {
         //Check whether a new minimum calc is required
         if !self.min_updated {
             //Skip the first as they contain plenty of nans
