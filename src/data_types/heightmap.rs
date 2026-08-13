@@ -1025,3 +1025,13 @@ fn sub_nan_f32(var: f32, val: f32) -> f32 {
     //If the value is NaN just add nothing
     add_nan_f32(var, -val)
 }
+
+///Getter for the minimum height
+pub fn min(&self) -> f32{
+    self.min
+}
+
+///Getter for the maximum height
+pub fn max(&self) -> f32{
+    self.max
+}
