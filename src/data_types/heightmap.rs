@@ -858,6 +858,16 @@ impl Heightmap {
         self.get_max();
         self.get_min();
     }
+
+    ///Getter for the minimum height
+    pub fn min(&self) -> f32{
+        self.min
+    }
+
+    ///Getter for the maximum height
+    pub fn max(&self) -> f32{
+        self.max
+    }
 }
 
 ///A selection of different intensity schemas for generating the 2.5D maps from 3D data
@@ -1026,12 +1036,3 @@ fn sub_nan_f32(var: f32, val: f32) -> f32 {
     add_nan_f32(var, -val)
 }
 
-///Getter for the minimum height
-pub fn min(&self) -> f32{
-    self.min
-}
-
-///Getter for the maximum height
-pub fn max(&self) -> f32{
-    self.max
-}
