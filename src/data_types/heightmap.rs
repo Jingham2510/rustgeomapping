@@ -60,7 +60,7 @@ impl Heightmap {
             height,
             width,
             no_of_cells: height as u32 * width as u32,
-            cells: vec![vec![0.0; height]; width],
+            cells: vec![vec![f32::NAN; height]; width],
             min: 999.0,
             max: -999.0,
             min_updated: false,
