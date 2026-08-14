@@ -338,7 +338,7 @@ impl Heightmap {
         y: usize,
         new_height: f32,
     ) -> Result<(), anyhow::Error> {
-        if x > self.width || y > self.height {
+        if x >= self.width || y >= self.height {
             bail!("Warning - attempting to write to cell that doesnt exist!");
         }
 
@@ -347,22 +347,6 @@ impl Heightmap {
         //Just incase these are overwritten
         self.max_updated = false;
         self.min_updated = false;
-
-        Ok(())
-    }
-
-    ///Set the height of a given cell without checking for a new max/min
-    pub fn set_cell_height_no_check(
-        &mut self,
-        x: usize,
-        y: usize,
-        new_height: f32,
-    ) -> Result<(), anyhow::Error> {
-        if x > self.width || y > self.height {
-            bail!("Warning - attempting to write to cell that doesnt exist!");
-        }
-
-        self.cells[x][y] = new_height;
 
         Ok(())
     }
