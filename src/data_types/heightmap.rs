@@ -344,20 +344,9 @@ impl Heightmap {
 
         self.cells[x][y] = new_height;
 
-        //Check that the cell doesnt store the min or the max
-        if (x, y) == self.max_pos {
-            self.get_max();
-        } else if (x, y) == self.min_pos {
-            self.get_min();
-        } else if new_height > self.max {
-            self.max = new_height;
-            self.max_pos = (x, y);
-        } else if new_height < self.min {
-            self.min = new_height;
-            self.min_pos = (x, y);
-        } else {
-            println!("{0} is not larger than {1}!", new_height, self.max);
-        }
+        //Just incase these are overwritten
+        self.max_updated = false;
+        self.min_updated = false;
 
         Ok(())
     }
