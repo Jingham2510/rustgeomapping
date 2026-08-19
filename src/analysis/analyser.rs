@@ -707,19 +707,19 @@ pub fn comp_maps(
     diff_map.set_upper_coord_bounds(curr_map.upper_coord_bounds());
 
     //Sweep through each cell and replace with the new map height
-    for (m, row) in diff_map.cells().iter_mut().enumerate() {
-        for (n, col) in row.iter_mut().enumerate() {
+    for i in 0..curr_map.width() {
+        for j in 0..curr_map.height() {
 
-            let curr_val = curr_map.get_cell_height(n, m)?;
-            let desired_val =desired_map.get_cell_height(n, m)?;
+            let curr_val = curr_map.get_cell_height(j, i)?;
+            let desired_val = desired_map.get_cell_height(j, i)?;
 
             //If the current value is NAN leave the target as a dont care/unknown state
             if curr_val.is_nan(){
-                diff_map.set_cell_height(n, m, f32::NAN);
+                diff_map.set_cell_height(j, i, f32::NAN);
             }else if desired_val.is_nan(){ //If no desired value then leave current as current
-                diff_map.set_cell_height(n, m, curr_val);
+                diff_map.set_cell_height(j, i, curr_val);
             }else{                
-                diff_map.set_cell_height(n, m, curr_val - desired_val);
+                diff_map.set_cell_height(j, i, curr_val - desired_val);
             }
 
         }
