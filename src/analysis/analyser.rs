@@ -715,11 +715,11 @@ pub fn comp_maps(
 
             //If the current value is NAN leave the target as a dont care/unknown state
             if curr_val.is_nan(){
-                *col = f32::NAN;
+                diff_map.set_cell_height(m, n, f32::NAN);
             }else if desired_val.is_nan(){ //If no desired value then leave current as current
-                *col = curr_val
+                diff_map.set_cell_height(m, n, curr_val);
             }else{                
-                *col = curr_val - desired_val;
+                diff_map.set_cell_height(m, n, curr_val - desired_val);
             }
 
         }
