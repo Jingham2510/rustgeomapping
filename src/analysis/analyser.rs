@@ -718,10 +718,11 @@ pub fn comp_maps(
                 *col = f32::NAN;
             }else if desired_val.is_nan(){ //If no desired value then leave current as current
                 *col = curr_val
-            }else{
-                
+            }else{                
                 *col = curr_val - desired_val;
             }
+
+            println!("{:?}", *col);
 
         }
     }
