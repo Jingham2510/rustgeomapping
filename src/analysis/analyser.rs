@@ -719,7 +719,7 @@ pub fn comp_maps(
             }else if desired_val.is_nan(){ //If no desired value then leave current as current
                 diff_map.set_cell_height(j, i, curr_val);
             }else{                
-                diff_map.set_cell_height(j, i, curr_val - desired_val);
+                diff_map.set_cell_height(j, i, desired_val - curr_val);
             }
 
         }
