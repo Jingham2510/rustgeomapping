@@ -722,8 +722,6 @@ pub fn comp_maps(
                 *col = curr_val - desired_val;
             }
 
-            println!("{:?}", *col);
-
         }
     }
 
