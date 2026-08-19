@@ -700,7 +700,11 @@ pub fn comp_maps(
     }
 
     //Create a new empty map that holds the difference
-    let diff_map: Heightmap = Heightmap::new(curr_map.width(), curr_map.height());
+    let mut diff_map: Heightmap = Heightmap::new(curr_map.width(), curr_map.height());
+
+    //Set the difference maps bounds (assume that they are the same as the first map)
+    diff_map.set_lower_coord_bounds(curr_map.lower_coord_bounds());
+    diff_map.set_upper_coord_bounds(curr_map.upper_coord_bounds());
 
     //Sweep through each cell and replace with the new map height
     for (m, row) in diff_map.cells().iter_mut().enumerate() {
