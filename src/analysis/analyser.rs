@@ -713,10 +713,10 @@ pub fn comp_maps(
             let curr_val = curr_map.get_cell_height(n, m)?;
             let desired_val =desired_map.get_cell_height(n, m)?;
 
-            //If the current value is NAN leave the target as a dont care state
+            //If the current value is NAN leave the target as a dont care/unknown state
             if curr_val.is_nan(){
-                *col = f32::NaN;
-            }else if desired_val.is_nan(){
+                *col = f32::NAN;
+            }else if desired_val.is_nan(){ //If no desired value then leave current as current
                 *col = curr_val
             }else{
                 
