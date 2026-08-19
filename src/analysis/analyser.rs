@@ -709,11 +709,20 @@ pub fn comp_maps(
     //Sweep through each cell and replace with the new map height
     for (m, row) in diff_map.cells().iter_mut().enumerate() {
         for (n, col) in row.iter_mut().enumerate() {
-            //First index is the row number (i.e. the height)
-            let diff = curr_map.get_cell_height(n, m)? - desired_map.get_cell_height(n, m)?;
 
-            //Not entirely sure why y and x are the opposite way rounds but hey ho
-            *col = diff;
+            let curr_val = curr_map.get_cell_height(n, m)?;
+            let desired_val =desired_map.get_cell_height(n, m)?;
+
+            //If the current value is NAN leave the target as a dont care state
+            if curr_val.is_nan(){
+                *col = f32::NaN;
+            }else if desired_val.is_nan(){
+                *col = curr_val
+            }else{
+                
+                *col = curr_val - desired_val;
+            }
+
         }
     }
 
