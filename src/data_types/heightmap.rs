@@ -328,7 +328,7 @@ impl Heightmap {
             bail!("Warning - attempting to read from cell that doesnt exist!");
         }
 
-        Ok(self.cells[x][y])
+        Ok(self.cells[y][x])
     }
 
     ///Set the height of a given cell

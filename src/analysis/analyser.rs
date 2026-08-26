@@ -710,8 +710,8 @@ pub fn comp_maps(
     for i in 0..curr_map.width() {
         for j in 0..curr_map.height() {
 
-            let curr_val = curr_map.get_cell_height(j, i)?;
-            let desired_val = desired_map.get_cell_height(j, i)?;
+            let curr_val = curr_map.get_cell_height(i,j)?;
+            let desired_val = desired_map.get_cell_height(i,j)?;
 
             //If the current value is NAN leave the target as a dont care/unknown state
             if curr_val.is_nan(){
