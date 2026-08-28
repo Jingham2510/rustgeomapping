@@ -342,7 +342,7 @@ impl Heightmap {
             bail!("Warning - attempting to write to cell that doesnt exist!");
         }
 
-        self.cells[x][y] = new_height;
+        self.cells[y][x] = new_height;
 
         //Just incase these are overwritten
         self.max_updated = false;
