@@ -328,7 +328,7 @@ impl Heightmap {
             bail!("Warning - attempting to read from cell that doesnt exist!");
         }
 
-        Ok(self.cells[y][x])
+        Ok(self.cells[x][y])
     }
 
     ///Set the height of a given cell
@@ -342,7 +342,7 @@ impl Heightmap {
             bail!("Warning - attempting to write to cell that doesnt exist!");
         }
 
-        self.cells[y][x] = new_height;
+        self.cells[x][y] = new_height;
 
         //Just incase these are overwritten
         self.max_updated = false;
@@ -865,7 +865,7 @@ fn trans_to_heightmap(
 ) -> Result<Vec<Vec<f32>>, anyhow::Error> {
     //Create the empty cell matrix
     //NaN spots are areas with no information
-    let mut cells_pnt_list = vec![vec![vec![]; bins_per_row]; bins_per_col];
+    let mut cells_pnt_list = vec![vec![vec![]; bins_per_col]; bins_per_row];
 
     let width_resolution = total_width / bins_per_row as f32;
     let height_resolution = total_height / bins_per_col as f32;
@@ -909,11 +909,11 @@ fn trans_to_heightmap(
             }
         }
         //add the point to the cell point list
-        cells_pnt_list[m][n].push(pnt[2]);
+        cells_pnt_list[n][m].push(pnt[2]);
     }
 
     //Calculate the height of each cell based on the chosen hmap option
-    let mut cells: Vec<Vec<f32>> = vec![vec![]; bins_per_col];
+    let mut cells: Vec<Vec<f32>> = vec![vec![]; bins_per_row];
 
     //Iterate through each point list
     for (i, pnt_list) in cells_pnt_list.iter_mut().enumerate() {
