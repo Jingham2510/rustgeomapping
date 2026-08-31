@@ -5,14 +5,97 @@ use anyhow::bail;
 use crate::data_types::intrinsic_info::IntrinsicInfo;
 
 use opencv::prelude::*;
-use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board};
+use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board, CharucoBoard, CharcoDetector};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags, IMREAD_COLOR};
-use opencv::core::{Point2i, Point2f, Point3f, Vector, Mat, MatTrait, Scalar, VecN};
+use opencv::core::{Point2i, Point2f, Point3f, Vector, Mat, MatTrait, Scalar, VecN, Size};
 use opencv::calib3d::{solve_pnp, rodrigues, draw_frame_axes, SOLVEPNP_ITERATIVE};
 
 
 
-///Caculate the inverse extrinsic matrix from an image
+
+///Calculate the inverse extrinsic matrix based on a predefined aruco board
+pub fn get_extrinsic_inv_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) -> Result<Matrix4<f32>, anyhow::Error>{
+
+    //Estimate the pose of the board
+    let (rvec, tvec) = estimate_pose_from_board(filepath, intrinsic_info);
+
+    let extrinsic = calc_extrinsic(rvec, tvec)?;
+
+    //Invert the extrinsic and return--inverse guaranteed as square matrix
+    Ok(extrinsic.try_inverse().unwrap())
+
+}
+
+///Estimate the pose of an aruco board (specifically the one used in the TRL for calibration)
+pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) -> Result<(Vector::<f32>, Vector::<f32>), anyhow::Error> {
+
+    //Load the image in grayscale
+    let mut image = imread(filepath, IMREAD_COLOR)?;
+
+    let mut gray_image = imread(filepath, IMREAD_GRAYSCALE)?;
+
+    //Load the predefined board information
+    let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5x5_250);
+    
+    let x_size = 14;
+    let y_size = 9;
+
+    let size = Size{
+        width : x_size,
+        height : y_size
+    };
+
+    let sq_len = 40mm;
+    let marker_len = 30.0;
+
+    //C++ default is empty array for ids
+    let ids = Vector::<i32>::new();
+
+    //Create the board and explicilty state that it doesnt have a legacy pattern
+    let board = CharucoBoard::new_def(size, sq_len, marker_len, &aruco_dic)?;
+    board.set_legacy_pattern(false);
+
+    //Create the board detector
+    let ch_detector = CharucoDetector::new(&board, &CharucoParameters::default()?, RefineParameters::new_def()?)?;
+    
+    //Create the arrays for corners and ids
+    let mut char_corners = Vector::<Vector<Point2f>>::new(); 
+    let mut char_ids  = Vector::<i32>::new();
+    let mut marker_corners = Vector::<Vector<Point2f>>::new();
+    let mut marker_ids = Vector::<i32>::new();
+
+    //Detect the board
+    ch_detector.detect_board(&gray_image, &mut char_corners, &mut char_ids, &mut marker_corners, &mut marker_ids)?;
+
+    //Create the object/image point pairs
+    let mut object_points = Vector::<Point3f>::new();
+    let mut image_points = Vector::<Point2f>::new();
+
+    //Match the obj/image points
+    board.match_image_points(&char_corners, &char_ids, &mut object_points, &mut image_points)?;
+
+    //Solve pnp for tvec and rvec
+     //Estimate the pose from the aruco tags
+    let mut rvec = Vector::<f32>::new();
+    let mut tvec = Vector::<f32>::new();
+
+    solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::from_slice(&[0.0, 0.0, 0.0, 0.0]), &mut rvec, &mut tvec, false, SOLVEPNP_ITERATIVE)?;
+
+    //Draw the detected markers
+    draw_detected_markers(&mut image, &corners, &ids, VecN::new(256.0, 256.0, 0.0, 0.0));
+
+    //Draw the estimate frame axes
+    draw_frame_axes( &mut image, &intrinsic_to_opencv_mat(intrinsic_info),  &Vector::<f32>::new(), &rvec, &tvec, 0.1, 2);
+
+    //Save the modified image
+    imwrite(filepath, &image, &Vector::<i32>::new());
+
+    Ok((rvec, tvec))
+
+
+}
+
+///Caculate the inverse extrinsic matrix from an image with user defined aruco tags
 pub fn get_extrinsic_inv_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_coords : Vec<[f32; 3]>,  marker_type : PredefinedDictionaryType, intrinsic_info: &IntrinsicInfo) -> Result<Matrix4<f32>, anyhow::Error>{
 
     //Estimate the pose from the image
