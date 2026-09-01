@@ -5,7 +5,7 @@ use anyhow::bail;
 use crate::data_types::intrinsic_info::IntrinsicInfo;
 
 use opencv::prelude::*;
-use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board, CharucoBoard, CharcoDetector};
+use opencv::objdetect::{ArucoDetector, PredefinedDictionaryType, get_predefined_dictionary, DetectorParameters, RefineParameters, draw_detected_markers, Board, CharucoBoard, CharucoDetector};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE, imwrite, ImwriteFlags, IMREAD_COLOR};
 use opencv::core::{Point2i, Point2f, Point3f, Vector, Mat, MatTrait, Scalar, VecN, Size};
 use opencv::calib3d::{solve_pnp, rodrigues, draw_frame_axes, SOLVEPNP_ITERATIVE};
@@ -45,14 +45,14 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
         height : y_size
     };
 
-    let sq_len = 40mm;
+    let sq_len = 40.0;
     let marker_len = 30.0;
 
     //C++ default is empty array for ids
     let ids = Vector::<i32>::new();
 
     //Create the board and explicilty state that it doesnt have a legacy pattern
-    let board = CharucoBoard::new_def(size, sq_len, marker_len, &aruco_dic)?;
+    let board = CharucoBoard::new_def(size, sq_len, marker_len, &aruco_dict)?;
     board.set_legacy_pattern(false);
 
     //Create the board detector
@@ -82,7 +82,7 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     solve_pnp(&object_points, &image_points, &intrinsic_to_opencv_mat(intrinsic_info), &Vector::<f32>::from_slice(&[0.0, 0.0, 0.0, 0.0]), &mut rvec, &mut tvec, false, SOLVEPNP_ITERATIVE)?;
 
     //Draw the detected markers
-    draw_detected_markers(&mut image, &corners, &ids, VecN::new(256.0, 256.0, 0.0, 0.0));
+    draw_detected_markers(&mut image, &char_corners, &char_ids, VecN::new(256.0, 256.0, 0.0, 0.0));
 
     //Draw the estimate frame axes
     draw_frame_axes( &mut image, &intrinsic_to_opencv_mat(intrinsic_info),  &Vector::<f32>::new(), &rvec, &tvec, 0.1, 2);
