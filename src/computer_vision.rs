@@ -56,8 +56,8 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
 
     
     //Load the board info
-    let x_size = 14;
-    let y_size = 9;
+    let x_size = 9;
+    let y_size = 14;
 
     let size = Size{
         width : x_size,
