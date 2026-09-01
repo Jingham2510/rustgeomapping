@@ -52,11 +52,11 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let ids = Vector::<i32>::new();
 
     //Create the board and explicilty state that it doesnt have a legacy pattern
-    let board = CharucoBoard::new_def(size, sq_len, marker_len, aruco_dict)?;
+    let board = CharucoBoard::new_def(size, sq_len, marker_len, &aruco_dict)?;
     board.set_legacy_pattern(false);
 
     //Create the board detector
-    let ch_detector = CharucoDetector::new(&board, &CharucoParametersTrait::default()?, &DetectorParameters::default()?,&RefineParameters::new_def()?)?;
+    let ch_detector = CharucoDetector::new(&board, &<dyn CharucoParametersTrait>::default()?, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
     
     //Create the arrays for corners and ids
     let mut char_corners = Vector::<Vector<Point2f>>::new(); 
