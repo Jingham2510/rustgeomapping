@@ -17,7 +17,7 @@ use opencv::calib3d::{solve_pnp, rodrigues, draw_frame_axes, SOLVEPNP_ITERATIVE}
 pub fn get_extrinsic_inv_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) -> Result<Matrix4<f32>, anyhow::Error>{
 
     //Estimate the pose of the board
-    let (rvec, tvec) = estimate_pose_from_board(filepath, intrinsic_info);
+    let (rvec, tvec) = estimate_pose_from_board(filepath, intrinsic_info)?;
 
     let extrinsic = calc_extrinsic(rvec, tvec)?;
 
@@ -35,7 +35,7 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let mut gray_image = imread(filepath, IMREAD_GRAYSCALE)?;
 
     //Load the predefined board information
-    let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5x5_250);
+    let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_250);
     
     let x_size = 14;
     let y_size = 9;
@@ -52,11 +52,11 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let ids = Vector::<i32>::new();
 
     //Create the board and explicilty state that it doesnt have a legacy pattern
-    let board = CharucoBoard::new_def(size, sq_len, marker_len, &aruco_dict)?;
+    let board = CharucoBoard::new_def(size, sq_len, marker_len, aruco_dict)?;
     board.set_legacy_pattern(false);
 
     //Create the board detector
-    let ch_detector = CharucoDetector::new(&board, &CharucoParameters::default()?, RefineParameters::new_def()?)?;
+    let ch_detector = CharucoDetector::new(&board, &CharucoParametersTrait::default()?, &DetectorParameters::default()?,&RefineParameters::new_def()?)?;
     
     //Create the arrays for corners and ids
     let mut char_corners = Vector::<Vector<Point2f>>::new(); 
