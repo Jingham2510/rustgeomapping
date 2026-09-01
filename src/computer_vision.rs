@@ -71,7 +71,10 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     //Detect the board
     ch_detector.detect_board_def(&gray_image, &mut char_corners, &mut char_ids /*, &mut marker_corners, &mut marker_ids*/)?;
 
-    println!("test");
+    if char_ids.len() == 0{
+        bail!("No IDS detected");
+    }
+
 
 
     //Create the object/image point pairs
