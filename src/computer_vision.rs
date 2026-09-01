@@ -43,6 +43,8 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let mut marker_ids = Vector::<i32>::new();
     let mut rejected = Vector::<Vector<Point2f>>::new();
 
+    
+
     let aruco_detector = ArucoDetector::new(&aruco_dict, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
 
     aruco_detector.detect_markers(
@@ -67,7 +69,8 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let mut board = CharucoBoard::new_def(Size::new(x_size, y_size), sq_len, marker_len, &aruco_dict)?;
     board.set_legacy_pattern(true);
 
-    
+    let ch_params = CharucoParameters::default()?;
+    ch_params.set_camera_matrix(intrinsic_to_opencv_mat(intrinsic_info));
 
     //Create the board detector
     let mut ch_detector = CharucoDetector::new(&board, &CharucoParameters::default()?, &DetectorParameters::default()?, RefineParameters::new_def()?)?;    
