@@ -53,11 +53,13 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let mut board = CharucoBoard::new_def(size, sq_len, marker_len, &aruco_dict)?;
     board.set_legacy_pattern(false);
 
-    println!("test");
     
 
     //Create the board detector
     let mut ch_detector = CharucoDetector::new(&board, &CharucoParameters::default()?, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
+
+
+    println!("test");
     
     //Create the arrays for corners and ids
     let mut char_corners = Vector::<Vector<Point2f>>::new(); 
