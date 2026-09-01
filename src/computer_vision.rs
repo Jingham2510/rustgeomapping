@@ -35,10 +35,25 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let mut gray_image = imread(filepath, IMREAD_GRAYSCALE)?;
 
 
-    //Load the predefined board information
+    //Load the predefined aruco information
     let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_250)?;
 
-  
+    //Detect the markers first
+    let mut marker_corners = Vector::<Vector<Point2f>>::new();
+    let mut marker_ids = Vector::<i32>::new();
+    let mut rejected = Vector::<Vector<Point2f>>::new();
+
+    aruco_detector.detect_markers(
+        &gray_image,
+        &mut marker_corners,
+        &mut marker_ids,
+        &mut rejected,
+    )?;
+
+    println!("markers found: {}", marker_ids.len());
+
+    
+    //Load the board info
     let x_size = 14;
     let y_size = 9;
 
@@ -57,15 +72,11 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     
 
     //Create the board detector
-    let mut ch_detector = CharucoDetector::new(&board, &CharucoParameters::default()?, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
-
-    
+    let mut ch_detector = CharucoDetector::new(&board, &CharucoParameters::default()?, &DetectorParameters::default()?, RefineParameters::new_def()?)?;    
     
     //Create the arrays for corners and ids
     let mut char_corners = Vector::<Vector<Point2f>>::new(); 
     let mut char_ids  = Vector::<i32>::new();
-    let mut marker_corners = Vector::<Vector<Point2f>>::new();
-    let mut marker_ids = Vector::<i32>::new();
 
     //Detect the board
     ch_detector.detect_board(&gray_image, &mut char_corners, &mut char_ids , &mut marker_corners, &mut marker_ids)?;
