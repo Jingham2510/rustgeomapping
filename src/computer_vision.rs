@@ -35,7 +35,7 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let mut gray_image = imread(filepath, IMREAD_GRAYSCALE)?;
 
     //Load the predefined board information
-    let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_250);
+    let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_250)?;
     
     let x_size = 14;
     let y_size = 9;
@@ -56,7 +56,7 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     board.set_legacy_pattern(false);
 
     //Create the board detector
-    let ch_detector = CharucoDetector::new(&board, &<dyn CharucoParametersTrait>::default()?, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
+    let ch_detector = CharucoDetector::new(&board, &CharucoParameters::default()?, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
     
     //Create the arrays for corners and ids
     let mut char_corners = Vector::<Vector<Point2f>>::new(); 
