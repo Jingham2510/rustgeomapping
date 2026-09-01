@@ -67,7 +67,7 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let size = Size{
         width : x_size,
         height : y_size
-    }
+    };
 
     let sq_len = 0.040;
     let marker_len = 0.030;
