@@ -39,8 +39,8 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_250)?;
 
   
-    let x_size = 14;
-    let y_size = 9;
+    let x_size = 9;
+    let y_size = 14;
 
     let size = Size{
         width : x_size,
