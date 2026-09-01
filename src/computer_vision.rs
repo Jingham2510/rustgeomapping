@@ -63,13 +63,13 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     
     
     //Create the arrays for corners and ids
-    let mut char_corners = Vector::<Vector::<Point2f>>::new(); 
-    let mut char_ids  = Vector::<i32>::new();
-    let mut marker_corners = Vector::<Vector::<Point2f>>::new();
-    let mut marker_ids = Vector::<i32>::new();
+    let mut char_corners = Vector::<Vector<Point2f>>::new(); 
+    let mut char_ids  = Vector::<Vector<i32>>::new();
+    //let mut marker_corners = Vector::<Vector<Point2f>>::new();
+    //let mut marker_ids = Vector::<i32>::new();
 
     //Detect the board
-    ch_detector.detect_board(&gray_image, &mut char_corners, &mut char_ids, &mut marker_corners, &mut marker_ids)?;
+    ch_detector.detect_board_def(&gray_image, &mut char_corners, &mut char_ids /*, &mut marker_corners, &mut marker_ids*/)?;
 
     println!("test");
 
