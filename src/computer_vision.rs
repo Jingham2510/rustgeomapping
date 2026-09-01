@@ -36,7 +36,8 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
 
     //Load the predefined board information
     let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_250)?;
-    
+
+  
     let x_size = 14;
     let y_size = 9;
 
@@ -66,6 +67,9 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
 
     //Detect the board
     ch_detector.detect_board(&gray_image, &mut char_corners, &mut char_ids, &mut marker_corners, &mut marker_ids)?;
+
+    println!("test");
+    
 
     //Create the object/image point pairs
     let mut object_points = Vector::<Point3f>::new();
