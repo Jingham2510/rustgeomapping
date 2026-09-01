@@ -43,6 +43,8 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let mut marker_ids = Vector::<i32>::new();
     let mut rejected = Vector::<Vector<Point2f>>::new();
 
+    let aruco_detector = ArucoDetector::new(&aruco_dict, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
+
     aruco_detector.detect_markers(
         &gray_image,
         &mut marker_corners,
