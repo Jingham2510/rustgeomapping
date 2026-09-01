@@ -36,17 +36,14 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
 
 
     //Load the predefined aruco information
-    let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_250)?;
+    let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_100)?;
 
     //Detect the markers first
     let mut marker_corners = Vector::<Vector<Point2f>>::new();
     let mut marker_ids = Vector::<i32>::new();
-    let mut rejected = Vector::<Vector<Point2f>>::new();
-
-    
+    let mut rejected = Vector::<Vector<Point2f>>::new();    
 
     let aruco_detector = ArucoDetector::new(&aruco_dict, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
-
     aruco_detector.detect_markers(
         &gray_image,
         &mut marker_corners,
@@ -54,19 +51,29 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
         &mut rejected,
     )?;
 
-    println!("markers found: {}", marker_ids.len());
+    //check to make sure markers are located
+    if marker_ids.is_empty(){
+        bail!("No markers detected")
+    }else{
+        println!("markers found: {}", marker_ids.len());
+    }
+
+    
 
     
     //Load the board info
     let x_size = 14;
     let y_size = 9;
-
+    let size = Size{
+        width : x_size,
+        height : y_size
+    }
 
     let sq_len = 0.040;
     let marker_len = 0.030;
 
     //Create the board and explicilty state that it doesnt have a legacy pattern
-    let mut board = CharucoBoard::new_def(Size::new(x_size, y_size), sq_len, marker_len, &aruco_dict)?;
+    let mut board = CharucoBoard::new_def(size, sq_len, marker_len, &aruco_dict)?;
     board.set_legacy_pattern(true);
 
     let mut ch_params = CharucoParameters::default()?;
@@ -81,12 +88,6 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
 
     //Detect the board
     ch_detector.detect_board(&gray_image, &mut char_corners, &mut char_ids , &mut marker_corners, &mut marker_ids)?;
-
-
-    if char_ids.len() == 0{
-        bail!("No IDS detected");
-    }
-
 
 
     //Create the object/image point pairs
