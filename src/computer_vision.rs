@@ -161,7 +161,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
 
 
     //Detect aruco tags
-    let mut corners = Vector::<Vector::<Vector<Point2f>>>::new(); 
+    let mut corners = Vector::<Vector<Vector<Point2f>>>::new(); 
     let mut ids  = Vector::<i32>::new();
     aruco_detector.detect_markers_def(&gray_image, &mut corners, &mut ids)?;
 
