@@ -34,6 +34,8 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
 
     let mut gray_image = imread(filepath, IMREAD_GRAYSCALE)?;
 
+    imwrite(filepath, &gray_image,  &Vector::<i32>::new());
+
     //Load the predefined board information
     let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_250)?;
 
