@@ -36,7 +36,7 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
 
 
     //Load the predefined aruco information
-    let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_100)?;
+    let aruco_dict = get_predefined_dictionary(PredefinedDictionaryType::DICT_5X5_250)?;
 
     //Detect the markers first
     let mut marker_corners = Vector::<Vector<Point2f>>::new();
