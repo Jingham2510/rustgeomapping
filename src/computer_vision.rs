@@ -59,16 +59,12 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let x_size = 9;
     let y_size = 14;
 
-    let size = Size{
-        width : x_size,
-        height : y_size
-    };
 
     let sq_len = 40.0;
     let marker_len = 30.0;
 
     //Create the board and explicilty state that it doesnt have a legacy pattern
-    let mut board = CharucoBoard::new_def(size, sq_len, marker_len, &aruco_dict)?;
+    let mut board = CharucoBoard::new_def(Size::new(x_size, y_size), sq_len, marker_len, &aruco_dict)?;
     board.set_legacy_pattern(true);
 
     
