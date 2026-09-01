@@ -49,12 +49,12 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     let sq_len = 40.0;
     let marker_len = 30.0;
 
-    //C++ default is empty array for ids
-    let ids = Vector::<i32>::new();
-
     //Create the board and explicilty state that it doesnt have a legacy pattern
     let mut board = CharucoBoard::new_def(size, sq_len, marker_len, &aruco_dict)?;
     board.set_legacy_pattern(false);
+
+    println!("test");
+    
 
     //Create the board detector
     let mut ch_detector = CharucoDetector::new(&board, &CharucoParameters::default()?, &DetectorParameters::default()?, RefineParameters::new_def()?)?;
@@ -68,8 +68,6 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     //Detect the board
     ch_detector.detect_board(&gray_image, &mut char_corners, &mut char_ids, &mut marker_corners, &mut marker_ids)?;
 
-    println!("test");
-    
 
     //Create the object/image point pairs
     let mut object_points = Vector::<Point3f>::new();
