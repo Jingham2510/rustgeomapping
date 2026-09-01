@@ -64,7 +64,7 @@ pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) 
     
     //Create the arrays for corners and ids
     let mut char_corners = Vector::<Vector<Point2f>>::new(); 
-    let mut char_ids  = Vector::<i32>::new();
+    let mut char_ids  = Vector::<Vector<i32>>::new();
     //let mut marker_corners = Vector::<Vector<Point2f>>::new();
     //let mut marker_ids = Vector::<i32>::new();
 
@@ -161,7 +161,7 @@ pub fn estimate_pose_from_aruco(filepath : &str, marker_ids : Vec<i32>,marker_co
 
 
     //Detect aruco tags
-    let mut corners = Vector::<Vector<Point2f>>::new(); 
+    let mut corners = Vector::<Vector::<Vector<Point2f>>>::new(); 
     let mut ids  = Vector::<i32>::new();
     aruco_detector.detect_markers_def(&gray_image, &mut corners, &mut ids)?;
 
