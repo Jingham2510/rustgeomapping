@@ -27,6 +27,7 @@ pub fn get_extrinsic_inv_from_board(filepath: &str, intrinsic_info: &IntrinsicIn
 }
 
 ///Estimate the pose of an aruco board (specifically the one used in the TRL for calibration)
+/// WARNING: OPENCV 0.04.8 DOES NOT WORK! 0.5.0 however does
 pub fn estimate_pose_from_board(filepath: &str, intrinsic_info: &IntrinsicInfo) -> Result<(Vector::<f32>, Vector::<f32>), anyhow::Error> {
 
     //Load the image in grayscale

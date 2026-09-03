@@ -369,6 +369,9 @@ impl PointCloud {
 
         //Add all points to the file string
         for i in 0..self.no_of_points {
+            
+
+
             file_string.push_str(&format!(
                 "{:?},{:?},{:?}\n",
                 self.points[i][0], self.points[i][1], self.points[i][2]

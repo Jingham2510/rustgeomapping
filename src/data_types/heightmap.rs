@@ -798,18 +798,18 @@ impl Heightmap {
             ((other.lower_coord_bounds[1] - self.lower_coord_bounds[1]) / bin_res_height) as i32;
 
         //Go through each bin and and update the corresponding bin
-        for i in start_row..(start_row + other.height as i32) {
-            if i < 0 || i >= self.height as i32 {
+        for y in start_row..(start_row + other.height as i32) {
+            if y < 0 || y >= self.height as i32 {
                 continue;
             }
 
-            for j in start_col..(start_col + other.width as i32) {
-                if j < 0 || j >= self.width as i32 {
+            for x in start_col..(start_col + other.width as i32) {
+                if x < 0 || x >= self.width as i32 {
                     continue;
                 }
-                let val = other.cells[(i - start_row) as usize][(j - start_col) as usize];
+                let val = other.cells[(y - start_row) as usize][(x - start_col) as usize];
                 if !val.is_nan() {
-                    self.cells[i as usize][j as usize] = val;
+                    self.cells[x as usize][y as usize] = val;
                 }
             }
         }
