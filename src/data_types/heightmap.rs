@@ -913,14 +913,14 @@ fn trans_to_heightmap(
     }
 
     //Calculate the height of each cell based on the chosen hmap option
-    let mut cells: Vec<Vec<f32>> = vec![vec![]; bins_per_row];
+    let mut cells: Vec<Vec<f32>> = vec![vec![f32::NAN; bins_per_col]; bins_per_row];
 
     //Iterate through each point list
-    for (i, pnt_list) in cells_pnt_list.iter_mut().enumerate() {
-        for pnts in pnt_list {
+    for (x, row) in cells_pnt_list.iter_mut().enumerate() {
+        for (y, pnts) in row.iter_mut().enumerate(){
             //If the cell is NAN - keep it as a null cell
             if pnts.iter().all(|x| x.is_nan()) || pnts.is_empty() {
-                cells[i].push(f32::NAN);
+                cells[x][y] = f32::NAN;
                 continue;
             }
 
@@ -990,7 +990,7 @@ fn trans_to_heightmap(
                 }
             }
 
-            cells[i].push(pnt_to_add);
+            cells[x][y] = pnt_to_add;
         }
     }
 
