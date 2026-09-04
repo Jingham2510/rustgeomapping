@@ -909,7 +909,7 @@ fn trans_to_heightmap(
             }
         }
         //add the point to the cell point list
-        cells_pnt_list[m][n].push(pnt[2]);
+        cells_pnt_list[n][m].push(pnt[2]);
     }
 
     //Calculate the height of each cell based on the chosen hmap option
