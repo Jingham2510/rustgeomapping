@@ -792,10 +792,8 @@ impl Heightmap {
         let bin_res_height =
             (self.upper_coord_bounds[1] - self.lower_coord_bounds[1]) / self.height as f32;
 
-        let start_col =
-            ((other.lower_coord_bounds[0] - self.lower_coord_bounds[0]) / bin_res_width) as i32;
-        let start_row =
-            ((other.lower_coord_bounds[1] - self.lower_coord_bounds[1]) / bin_res_height) as i32;
+        let start_col = ((other.lower_coord_bounds[0] - self.lower_coord_bounds[0]) / bin_res_width).floor() as i32;
+        let start_row = ((other.lower_coord_bounds[1] - self.lower_coord_bounds[1]) / bin_res_height).floor() as i32;
 
         //Go through each bin and and update the corresponding bin
          for x in start_col..(start_col + other.width as i32) {
