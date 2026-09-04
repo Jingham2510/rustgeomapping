@@ -919,8 +919,8 @@ fn trans_to_heightmap(
     for (x, row) in cells_pnt_list.iter_mut().enumerate() {
         for (y, pnts) in row.iter_mut().enumerate(){
             //If the cell is NAN - keep it as a null cell
-            if pnts.iter().all(|x| x.is_nan()) || pnts.is_empty() {
-                cells[x][y] = f32::NAN;
+            if pnts.iter().all(|pnt| pnt.is_nan()) || pnts.is_empty() {
+                cells[bins_per_col - x][bins_per_row - y] = f32::NAN;
                 continue;
             }
 
