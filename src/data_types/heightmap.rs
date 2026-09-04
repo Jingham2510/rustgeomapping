@@ -865,7 +865,7 @@ fn trans_to_heightmap(
 ) -> Result<Vec<Vec<f32>>, anyhow::Error> {
     //Create the empty cell matrix
     //NaN spots are areas with no information
-    let mut cells_pnt_list = vec![vec![vec![]; bins_per_col]; bins_per_row];
+    let mut cells_pnt_list = vec![vec![vec![]; bins_per_row]; bins_per_col];
 
     let width_resolution = total_width / bins_per_row as f32;
     let height_resolution = total_height / bins_per_col as f32;
