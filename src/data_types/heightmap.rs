@@ -874,11 +874,11 @@ fn trans_to_heightmap(
         let mut n = ((pnt[0] - min_x_bnd) / width_resolution).floor() as usize;
         let mut m = ((pnt[1] - min_y_bnd) / height_resolution).floor() as usize;
 
-        //Nudge the edges
-        if n == bins_per_row - 1{
+        //Nudge the edges in
+        if n == bins_per_row{
             n = n - 1;
         }
-        if m == bins_per_col - 1{
+        if m == bins_per_col {
             m = m - 1;
         }
 
