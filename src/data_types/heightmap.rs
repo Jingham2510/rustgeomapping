@@ -798,16 +798,16 @@ impl Heightmap {
             ((other.lower_coord_bounds[1] - self.lower_coord_bounds[1]) / bin_res_height) as i32;
 
         //Go through each bin and and update the corresponding bin
-        for y in start_row..(start_row + other.height as i32) {
-            if y < 0 || y >= self.height as i32 {
-                continue;
-            }
-
-            for x in start_col..(start_col + other.width as i32) {
+         for x in start_col..(start_col + other.width as i32) {
                 if x < 0 || x >= self.width as i32 {
                     continue;
                 }
-                let val = other.cells[(y - start_row) as usize][(x - start_col) as usize];
+            for y in start_row..(start_row + other.height as i32) {
+                if y < 0 || y >= self.height as i32 {
+                    continue;
+                }
+           
+                let val = other.cells[(x - start_col) as usize][(y - start_row) as usize];
                 if !val.is_nan() {
                     self.cells[x as usize][y as usize] = val;
                 }
@@ -920,7 +920,7 @@ fn trans_to_heightmap(
         for (y, pnts) in row.iter_mut().enumerate(){
             //If the cell is NAN - keep it as a null cell
             if pnts.iter().all(|pnt| pnt.is_nan()) || pnts.is_empty() {
-                cells[bins_per_row - x - 1][bins_per_col - y - 1] = f32::NAN;
+                cells[x][y] = f32::NAN;
                 continue;
             }
 
