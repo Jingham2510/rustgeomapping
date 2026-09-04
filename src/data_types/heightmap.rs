@@ -870,44 +870,12 @@ fn trans_to_heightmap(
     let width_resolution = total_width / bins_per_row as f32;
     let height_resolution = total_height / bins_per_col as f32;
 
-    //Check each points and direct it to a cell (updating the average height)
+    //Bin each cell
     for pnt in data {
-        //Start in the first bin (as the point will never sit at the minimum x bound)
-        let mut n = 0;
-        let mut m = 0;
 
-        let mut n_fnd = false;
-        let mut m_fnd = false;
+        let n = ((pnt[0] - min_x_bnd) / width_resolution).floor() as usize;
+        let m = ((pnt[1] - min_y_bnd) / height_resolution).floor() as usize;
 
-        let curr_x = pnt[0];
-        let curr_y = pnt[1];
-
-        //Find the horizontal pos
-        while !n_fnd | !m_fnd {
-            if !n_fnd {
-                if curr_x <= ((width_resolution * n as f32) + (min_x_bnd + width_resolution)) {
-                    n_fnd = true;
-                } else {
-                    n += 1;
-                }
-                //Check if end pos
-                if n == bins_per_row - 1 {
-                    n_fnd = true;
-                }
-            }
-            if !m_fnd {
-                //Find the vertical pos
-                if curr_y <= ((height_resolution * m as f32) + (min_y_bnd + height_resolution)) {
-                    m_fnd = true;
-                } else {
-                    m += 1;
-                }
-                //Check if end pos
-                if m == bins_per_col - 1 {
-                    m_fnd = true;
-                }
-            }
-        }
         //add the point to the cell point list
         cells_pnt_list[n][m].push(pnt[2]);
     }
