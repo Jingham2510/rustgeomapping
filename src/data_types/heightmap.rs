@@ -871,8 +871,16 @@ fn trans_to_heightmap(
     //Bin each cell
     for pnt in data {
 
-        let n = ((pnt[0] - min_x_bnd) / width_resolution).floor() as usize;
-        let m = ((pnt[1] - min_y_bnd) / height_resolution).floor() as usize;
+        let mut n = ((pnt[0] - min_x_bnd) / width_resolution).floor() as usize;
+        let mut m = ((pnt[1] - min_y_bnd) / height_resolution).floor() as usize;
+
+        //Nudge the edges
+        if n == bins_per_row - 1{
+            n = n - 1;
+        }
+        if m == bins_per_col - 1{
+            m = m - 1;
+        }
 
         //add the point to the cell point list
         cells_pnt_list[n][m].push(pnt[2]);
