@@ -192,7 +192,7 @@ impl Heightmap {
         }
     }
 
-    ///Creates a heightmap with a desired bin size (square) -- assume all pointclouds have been preprocessed and fit together
+    ///Creates a heightmap with a desired bin size (square) 
     pub fn create_from_pcl_list_with_res(
         pcl_list: Vec<PointCloud>,
         desired_bin_size: f32,
@@ -909,7 +909,7 @@ fn trans_to_heightmap(
             }
         }
         //add the point to the cell point list
-        cells_pnt_list[n][m].push(pnt[2]);
+        cells_pnt_list[m][n].push(pnt[2]);
     }
 
     //Calculate the height of each cell based on the chosen hmap option
@@ -926,7 +926,7 @@ fn trans_to_heightmap(
 
             let mut pnt_to_add: f32 = 0.0;
 
-            //Determine the value of the cell bsaed on the provided heightmap options
+            //Determine the value of the cell based on the provided heightmap options
             match opt {
                 MapGenOpt::Mean => {
                     let mut cnt = 0;
