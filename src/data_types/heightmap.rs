@@ -839,6 +839,25 @@ impl Heightmap {
     pub fn max(&self) -> f32{
         self.max
     }
+
+    
+    ///Return the depths of a selection of points
+    pub fn sample_points(&self, points : Vec<(usize, usize)>) -> Vec<f32>{
+
+        let mut sampled_depths : Vec<f32> = vec![];
+
+        for (x, y) in points{
+            let depth = self.get_cell_height(x, y);
+            match depth{
+                Ok(depth) => {sampled_depths.push(depth)},
+                Err(e) =>{/*Throwaway invalid samples */}
+            }
+        }
+
+        sampled_depths
+
+    }
+
 }
 
 ///A selection of different intensity schemas for generating the 2.5D maps from 3D data
