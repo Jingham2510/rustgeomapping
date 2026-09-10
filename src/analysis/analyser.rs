@@ -713,11 +713,10 @@ pub fn comp_maps(
             let curr_val = curr_map.get_cell_height(i,j)?;
             let desired_val = desired_map.get_cell_height(i,j)?;
 
-            //If the current value is NAN leave the target as a dont care/unknown state
-            if curr_val.is_nan(){
+            //If the current or target value is NAN leave the target as a dont care/unknown state
+            //Can't know the difference if it doesn't exist
+            if curr_val.is_nan() || desired_val.is_nan(){
                 diff_map.set_cell_height(i, j, f32::NAN);
-            }else if desired_val.is_nan(){ //If no desired value then leave current as current
-                diff_map.set_cell_height(i, j, curr_val);
             }else{                
                 diff_map.set_cell_height(i, j, desired_val - curr_val);
             }
