@@ -14,7 +14,7 @@ use std::time::Duration;
 
 ///Realsense frame processing
 ///Architecture modelled from the example decimation block - https://gitlab.com/tangram-vision/oss/realsense-rust/-/merge_requests/55/diffs?commit_id=a145ce0262f79f667b00ed29e3b081e00e258444#4243a5602f85e44e06d290e709da9d0217c9a4ee
-#[derive(Debug, Send)]
+#[derive(Debug)]
 pub struct FrameProcBlock<T> {
     ///The processing block for the "Pointcloud" method
     processing_block: NonNull<rs2_processing_block>,
