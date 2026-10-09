@@ -18,6 +18,13 @@ impl CamType {
         }
     }
 
+    ///Take a pointcloud regardless of camera type
+    pub async fn async_take_pcl(&mut self) -> Result<PointCloud, anyhow::Error> {
+        match self {
+            CamType::RealsenseCam(cam) => cam.get_pointcloud(),
+        }
+    }
+
 
     pub fn get_intrinsics(&self) ->Result<IntrinsicInfo, anyhow::Error>{
         match self{
