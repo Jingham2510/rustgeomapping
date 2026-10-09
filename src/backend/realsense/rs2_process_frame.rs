@@ -26,6 +26,8 @@ pub struct FrameProcBlock<T> {
     output: Option<T>,
 }
 
+unsafe impl<T: Send> Send for FrameProcBlock<T> {}
+
 pub trait FrameProc<T> {
     ///Wait for a frame to be processed
     fn wait(&mut self, timeout: Duration) -> Result<T, DataError>;
