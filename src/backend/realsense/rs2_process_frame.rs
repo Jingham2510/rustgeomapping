@@ -26,6 +26,7 @@ pub struct FrameProcBlock<T> {
     output: Option<T>,
 }
 
+//A promise to the compiler that we can use this in threads
 unsafe impl<T: Send> Send for FrameProcBlock<T> {}
 
 pub trait FrameProc<T> {
