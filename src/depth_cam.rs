@@ -12,7 +12,7 @@ pub enum CamType {
 
 impl CamType {
     ///Take a pointcloud regardless of camera type
-    pub fn take_pcl(&mut self) -> Result<PointCloud, anyhow::Error> {
+    pub async fn take_pcl(&mut self) -> Result<PointCloud, anyhow::Error> {
         match self {
             CamType::RealsenseCam(cam) => cam.get_pointcloud(),
         }
