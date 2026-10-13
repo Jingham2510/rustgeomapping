@@ -74,13 +74,11 @@ impl RealsenseCam {
         //Only enable the  depth stream (not bothered about gyro/infra/colour atm)
         config
             .enable_device_from_serial(devices[cam_no].info(Rs2CameraInfo::SerialNumber).unwrap())?
-            .disable_all_streams()?
+            .disable_all_streams()?;
             //.enable_all_streams()?;
-            //Height of 0 indicates to realsense that it should select the most appropriate height itself
-            .enable_stream(Rs2StreamKind::Depth, None, 848, 480, Rs2Format::Z16, 30);
 
         //Ensure that the fps is set to a valid option
-        if config.is_err(){
+        if config.enable_stream(Rs2StreamKind::Depth, None, 848, 480, Rs2Format::Z16, 30).is_err(){
             config.enable_stream(Rs2StreamKind::Depth, None, 848, 480, Rs2Format::Z16, 6)?
                 .enable_stream(Rs2StreamKind::Color, None, 1280, 720, Rs2Format::Rgb8, 6)?;
         }else{
