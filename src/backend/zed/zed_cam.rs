@@ -88,13 +88,13 @@ impl ZedCamera{
         };       
 
 
-        Ok( IntrinsicInfo{
-            focal_length_x : cali_params.fx,
-            focal_length_y : cali_params.fy,
-            principal_off_x : cali_params.cx,
-            principal_off_y : cali_params.cy,
-            skew : 0.0
-        })
+        Ok( IntrinsicInfo::create(
+                cali_params.fx,
+                cali_params.fy,
+                cali_params.cx,
+                cali_params.cy,
+                0.0
+        ))
     }
 
 
