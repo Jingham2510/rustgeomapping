@@ -1,4 +1,5 @@
 use crate::backend::realsense::realsense_cam::RealsenseCam;
+use crate::backend::zed_cam::ZedCamera;
 ///High levels functions used to generate information from the RGBD cameras
 use crate::data_types::pointcloud::PointCloud;
 use crate::data_types::intrinsic_info::IntrinsicInfo;
@@ -8,34 +9,33 @@ use std::fmt;
 ///Available depth camera types
 pub enum CamType {
     RealsenseCam(DepthCam<RealsenseCam>),
+    ZedCam(DepthCam<ZedCam>)
 }
 
 impl CamType {
     ///Take a pointcloud regardless of camera type
     pub fn take_pcl(&mut self) -> Result<PointCloud, anyhow::Error> {
         match self {
-            CamType::RealsenseCam(cam) => cam.get_pointcloud(),
+            (CamType::RealsenseCam(cam) | CamType::ZedCam(cam))=> cam.get_pointcloud(),
         }
     }
-
- 
 
 
     pub fn get_intrinsics(&self) ->Result<IntrinsicInfo, anyhow::Error>{
         match self{
-            CamType::RealsenseCam(cam) => cam.get_intrinsic(),
+            (CamType::RealsenseCam(cam) | CamType::ZedCam(cam)) => cam.get_intrinsic(),
         }
     }
 
     pub fn get_colour_image(&mut self, filepath : &str) -> Result<String, anyhow::Error>{
         match self{
-            CamType::RealsenseCam(cam) => cam.get_colour_image(filepath),
+            (CamType::RealsenseCam(cam) | CamType::ZedCam(cam)) => cam.get_colour_image(filepath),
         }
     }
 
     pub fn id(&self) -> u32{
         match self{
-            CamType::RealsenseCam(cam) => cam.id(),
+            (CamType::RealsenseCam(cam) | CamType::ZedCam(cam)) => cam.id(),
         }
     }
 
@@ -49,6 +49,11 @@ pub struct DepthCam<T> {
 }
 
 impl fmt::Display for DepthCam<RealsenseCam> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Cam ID: {}", self.id)
+    }
+}
+impl fmt::Display for DepthCam<ZedCam> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Cam ID: {}", self.id)
     }
@@ -107,6 +112,58 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
 impl DepthCam<RealsenseCam> {
     pub fn connect_realsense(id: u32) -> Result<Self, anyhow::Error> {
+        DepthCam::connect(id)
+    }
+
+    pub fn id(&self) -> u32{
+        self.id
+    }
+}
+
+
+impl Required<ZedCam> for DepthCam<ZedCam> {
+    fn connect(id: u32) -> Result<DepthCam<ZedCam>, anyhow::Error> {
+        let zed_cam = ZedCam::connect(id as usize)?;
+
+        Ok(DepthCam {
+            cam: zed_cam,
+            id,
+        })
+    }
+
+    fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error> {
+        //Range is auto determined on
+        self.cam.get_pointcloud()
+    }
+
+    fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{
+        self.cam.get_intrinsics()
+    }
+
+    fn get_colour_image(&mut self, filepath: &str ) -> Result<String, anyhow::Error>{
+        //Auto assume left lens
+        self.cam.get_image(filepath, true)
+    }
+
+    //Not implemented
+    fn reset_all() -> Result<(), anyhow::Error>{
+        todo!()
+    }
+
+}
+
+impl DepthCam<RealsenseCam> {
+    pub fn connect_realsense(id: u32) -> Result<Self, anyhow::Error> {
+        DepthCam::connect(id)
+    }
+
+    pub fn id(&self) -> u32{
+        self.id
+    }
+}
+
+impl DepthCam<ZedCam> {
+    pub fn connect_zed(id: u32) -> Result<Self, anyhow::Error> {
         DepthCam::connect(id)
     }
 

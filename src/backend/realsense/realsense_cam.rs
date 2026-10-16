@@ -104,8 +104,8 @@ impl RealsenseCam {
             .queue(depth_frame.pop().unwrap())
             .expect("FAILED TO QUEUE DEPTH FRAME");
 
-        //Wait a maximum of 1000ms for the frame to be processed
-        let point_frame: PointsFrame = self.pcl_block.wait(Duration::from_millis(1000))?;
+        //Wait a maximum of 250ms for the frame to be processed
+        let point_frame: PointsFrame = self.pcl_block.wait(Duration::from_millis(250))?;
 
         //Turn the point frame into a vector of floats
         let mut points: Vec<[f32; 3]> = vec![];
