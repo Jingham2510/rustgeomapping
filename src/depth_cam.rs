@@ -53,7 +53,7 @@ impl fmt::Display for DepthCam<RealsenseCam> {
         write!(f, "Cam ID: {}", self.id)
     }
 }
-impl fmt::Display for DepthCam<ZedCam> {
+impl fmt::Display for DepthCam<ZedCamera> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Cam ID: {}", self.id)
     }
@@ -110,18 +110,7 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
 }
 
-impl DepthCam<RealsenseCam> {
-    pub fn connect_realsense(id: u32) -> Result<Self, anyhow::Error> {
-        DepthCam::connect(id)
-    }
-
-    pub fn id(&self) -> u32{
-        self.id
-    }
-}
-
-
-impl Required<ZedCam> for DepthCam<ZedCamera> {
+impl Required<ZedCamera> for DepthCam<ZedCamera> {
     fn connect(id: u32) -> Result<DepthCam<ZedCamera>, anyhow::Error> {
         let zed_cam = ZedCamera::connect(id as usize)?;
 
