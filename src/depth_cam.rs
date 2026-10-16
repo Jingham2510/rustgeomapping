@@ -1,5 +1,5 @@
 use crate::backend::realsense::realsense_cam::RealsenseCam;
-use crate::backend::zed_cam::ZedCamera;
+use crate::backend::zed::zed_cam::ZedCamera;
 ///High levels functions used to generate information from the RGBD cameras
 use crate::data_types::pointcloud::PointCloud;
 use crate::data_types::intrinsic_info::IntrinsicInfo;
