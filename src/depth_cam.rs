@@ -16,7 +16,8 @@ impl CamType {
     ///Take a pointcloud regardless of camera type
     pub fn take_pcl(&mut self) -> Result<PointCloud, anyhow::Error> {
         match self {
-            (CamType::RealsenseCam(cam) | CamType::ZedCamera(cam))=> cam.get_pointcloud(),
+            (CamType::RealsenseCam(cam))=> cam.get_pointcloud(),
+            CamType::ZedCamera(cam) => cam.get_pointcloud()
         }
     }
 
@@ -126,12 +127,12 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
     }
 
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{
-        self.cam.get_intrinsics()
+        self.cam.get_intrinsics(true)
     }
 
     fn get_colour_image(&mut self, filepath: &str ) -> Result<String, anyhow::Error>{
         //Auto assume left lens
-        self.cam.get_image(filepath, true)
+        self.cam.save_image(filepath, true)
     }
 
     //Not implemented
