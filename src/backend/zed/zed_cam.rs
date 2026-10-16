@@ -7,7 +7,7 @@ use image::{RgbaImage};
 use crate::data_types::{pointcloud::PointCloud, intrinsic_info::IntrinsicInfo};
 
 
-struct ZedCamera{
+pub struct ZedCamera{
     camera : Camera,
     resolution : Resolution,
     runtime : RuntimeParameters,
@@ -17,7 +17,7 @@ struct ZedCamera{
 impl ZedCamera{
 
     ///Connect to a zed camera and store the required info
-    fn connect(id : u32) -> Result<ZedCamera, zed_sdk::Error>{
+    pub fn connect(id : u32) -> Result<ZedCamera, zed_sdk::Error>{
 
         //Set the options to match those of the realsense camera
         let options = OpenOptions::default()
@@ -45,7 +45,7 @@ impl ZedCamera{
 
     ///Capture an image from the then save it to the desired filepath
     /// Left determines which lens the image is grabbed from
-    fn save_image(&mut self, fp : String, left : bool) -> Result<String, anyhow::Error>{
+    pub fn save_image(&mut self, fp : String, left : bool) -> Result<String, anyhow::Error>{
         //Prep an empty frame
         let mut frame = Mat::<Rgba8>::new_cpu(self.resolution)?;
 
@@ -78,7 +78,7 @@ impl ZedCamera{
 
     //Report the intrinsic information of the connect ZED camera
     //Left determines if it is from the left or the right lens
-    fn get_intrinsics(self, left : bool) ->Result<IntrinsicInfo, anyhow::Error>{
+    pub fn get_intrinsics(self, left : bool) ->Result<IntrinsicInfo, anyhow::Error>{
         let cali_params = self.camera.calibration_parameters(false)?;
 
         let cali_params = if left{
@@ -98,7 +98,7 @@ impl ZedCamera{
     }
 
 
-    fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error>{
+    pub fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error>{
         //Prep an empty frame
         let mut frame = Mat::<Point3Color>::new_cpu(self.resolution)?;
 
