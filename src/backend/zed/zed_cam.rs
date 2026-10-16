@@ -21,7 +21,7 @@ impl ZedCamera{
 
         //Set the options to match those of the realsense camera
         let options = OpenOptions::default()
-        .camera_device_id(id)
+        .camera_device_id(id as i32)
         .resolution(ResolutionPreset::Hd1080)
         .depth_mode(zed_sdk::DepthMode::Quality)
         .coordinate_unit(zed_sdk::Unit::Meter)
@@ -69,7 +69,7 @@ impl ZedCamera{
             px.0.swap(0, 2);
         }     
         
-        image.save(fp)?;
+        image.save(&fp)?;
 
         Ok(fp)
 
@@ -121,7 +121,7 @@ impl ZedCamera{
         .collect();
 
 
-        Ok(PointCloud::create_from_iter(vertices))
+        PointCloud::create_from_iter(vertices)
     }
 
 }
