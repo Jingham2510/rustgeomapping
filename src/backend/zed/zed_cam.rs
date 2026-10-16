@@ -17,11 +17,11 @@ pub struct ZedCamera{
 impl ZedCamera{
 
     ///Connect to a zed camera and store the required info
-    pub fn connect(id : u32) -> Result<ZedCamera, zed_sdk::Error>{
+    pub fn connect(id : i32) -> Result<ZedCamera, zed_sdk::Error>{
 
         //Set the options to match those of the realsense camera
         let options = OpenOptions::default()
-        .camera_device_id(id as i32)
+        .camera_device_id(id)
         .resolution(ResolutionPreset::Hd1080)
         .depth_mode(zed_sdk::DepthMode::Quality)
         .coordinate_unit(zed_sdk::Unit::Meter)
@@ -78,7 +78,7 @@ impl ZedCamera{
 
     //Report the intrinsic information of the connect ZED camera
     //Left determines if it is from the left or the right lens
-    pub fn get_intrinsics(self, left : bool) ->Result<IntrinsicInfo, anyhow::Error>{
+    pub fn get_intrinsics(&self, left : bool) ->Result<IntrinsicInfo, anyhow::Error>{
         let cali_params = self.camera.calibration_parameters(false)?;
 
         let cali_params = if left{

@@ -16,7 +16,7 @@ impl CamType {
     ///Take a pointcloud regardless of camera type
     pub fn take_pcl(&mut self) -> Result<PointCloud, anyhow::Error> {
         match self {
-            (CamType::RealsenseCam(cam))=> cam.get_pointcloud(),
+            CamType::RealsenseCam(cam)=> cam.get_pointcloud(),
             CamType::ZedCamera(cam) => cam.get_pointcloud()
         }
     }
@@ -24,19 +24,23 @@ impl CamType {
 
     pub fn get_intrinsics(&self) ->Result<IntrinsicInfo, anyhow::Error>{
         match self{
-            (CamType::RealsenseCam(cam) | CamType::ZedCamera(cam)) => cam.get_intrinsic(),
+            CamType::RealsenseCam(cam) => cam.get_intrinsic(),
+            CamType::ZedCamera(cam) => cam.get_intrinsic()
         }
     }
 
     pub fn get_colour_image(&mut self, filepath : &str) -> Result<String, anyhow::Error>{
         match self{
-            (CamType::RealsenseCam(cam) | CamType::ZedCamera(cam)) => cam.get_colour_image(filepath),
+            CamType::RealsenseCam(cam) => cam.get_colour_image(filepath),
+            CamType::ZedCamera(cam) => cam.get_colour_image(filepath)
         }
     }
 
     pub fn id(&self) -> u32{
         match self{
-            (CamType::RealsenseCam(cam) | CamType::ZedCamera(cam)) => cam.id(),
+            CamType::RealsenseCam(cam) => cam.id(),
+            CamType::ZedCamera(cam) => cam.id()
+            
         }
     }
 
@@ -113,7 +117,7 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
 impl Required<ZedCamera> for DepthCam<ZedCamera> {
     fn connect(id: u32) -> Result<DepthCam<ZedCamera>, anyhow::Error> {
-        let zed_cam = ZedCamera::connect(id as usize)?;
+        let zed_cam = ZedCamera::connect(id as i32)?;
 
         Ok(DepthCam {
             cam: zed_cam,
@@ -132,7 +136,7 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
 
     fn get_colour_image(&mut self, filepath: &str ) -> Result<String, anyhow::Error>{
         //Auto assume left lens
-        self.cam.save_image(filepath, true)
+        self.cam.save_image(String::from(filepath), true)
     }
 
     //Not implemented
