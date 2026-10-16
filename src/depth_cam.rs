@@ -9,33 +9,33 @@ use std::fmt;
 ///Available depth camera types
 pub enum CamType {
     RealsenseCam(DepthCam<RealsenseCam>),
-    ZedCam(DepthCam<ZedCam>)
+    ZedCamera(DepthCam<ZedCamera>)
 }
 
 impl CamType {
     ///Take a pointcloud regardless of camera type
     pub fn take_pcl(&mut self) -> Result<PointCloud, anyhow::Error> {
         match self {
-            (CamType::RealsenseCam(cam) | CamType::ZedCam(cam))=> cam.get_pointcloud(),
+            (CamType::RealsenseCam(cam) | CamType::ZedCamera(cam))=> cam.get_pointcloud(),
         }
     }
 
 
     pub fn get_intrinsics(&self) ->Result<IntrinsicInfo, anyhow::Error>{
         match self{
-            (CamType::RealsenseCam(cam) | CamType::ZedCam(cam)) => cam.get_intrinsic(),
+            (CamType::RealsenseCam(cam) | CamType::ZedCamera(cam)) => cam.get_intrinsic(),
         }
     }
 
     pub fn get_colour_image(&mut self, filepath : &str) -> Result<String, anyhow::Error>{
         match self{
-            (CamType::RealsenseCam(cam) | CamType::ZedCam(cam)) => cam.get_colour_image(filepath),
+            (CamType::RealsenseCam(cam) | CamType::ZedCamera(cam)) => cam.get_colour_image(filepath),
         }
     }
 
     pub fn id(&self) -> u32{
         match self{
-            (CamType::RealsenseCam(cam) | CamType::ZedCam(cam)) => cam.id(),
+            (CamType::RealsenseCam(cam) | CamType::ZedCamera(cam)) => cam.id(),
         }
     }
 
@@ -121,9 +121,9 @@ impl DepthCam<RealsenseCam> {
 }
 
 
-impl Required<ZedCam> for DepthCam<ZedCam> {
-    fn connect(id: u32) -> Result<DepthCam<ZedCam>, anyhow::Error> {
-        let zed_cam = ZedCam::connect(id as usize)?;
+impl Required<ZedCam> for DepthCam<ZedCamera> {
+    fn connect(id: u32) -> Result<DepthCam<ZedCamera>, anyhow::Error> {
+        let zed_cam = ZedCamera::connect(id as usize)?;
 
         Ok(DepthCam {
             cam: zed_cam,
@@ -162,7 +162,7 @@ impl DepthCam<RealsenseCam> {
     }
 }
 
-impl DepthCam<ZedCam> {
+impl DepthCam<ZedCamera> {
     pub fn connect_zed(id: u32) -> Result<Self, anyhow::Error> {
         DepthCam::connect(id)
     }
