@@ -126,8 +126,8 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
     }
 
     fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error> {
-        //Range is auto determined on
-        self.cam.get_pointcloud()
+        //Range is determined by the setup config
+        self.cam.get_pointcloud(true)
     }
 
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{

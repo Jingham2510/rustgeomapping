@@ -78,8 +78,8 @@ impl ZedCamera{
     }
 
 
-    //Report the intrinsic information of the connect ZED camera
-    //Left determines if it is from the left or the right lens
+    ///Report the intrinsic information of the connect ZED camera
+    ///Left determines if it is from the left or the right lens
     pub fn get_intrinsics(&self, left : bool) ->Result<IntrinsicInfo, anyhow::Error>{
         let cali_params = self.camera.calibration_parameters(false)?;
 
@@ -99,14 +99,15 @@ impl ZedCamera{
         ))
     }
 
-
-    pub fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error>{
+    //Get the latest pointcloud from the zed camera
+    pub fn get_pointcloud(&mut self, grab : bool) -> Result<PointCloud, anyhow::Error>{
         //Prep an empty frame
         let mut frame = Mat::<Point3Color>::new_cpu(self.resolution)?;
 
         //Grab the latest frame
-        self.camera.grab(&self.runtime)?;
-
+        if grab{
+            self.camera.grab(&self.runtime)?;
+        }
         //Get the point map - zed_sdk crate cant access retrieve_xyz...
         self.camera.retrieve_xyzrgba(&mut frame)?;
 
@@ -124,6 +125,21 @@ impl ZedCamera{
 
 
         PointCloud::create_from_iter(vertices)
+    }
+
+    ///Get the latest imu data
+    pub fn get_imu_acc(&mut self, grab : bool) -> Result<[f32;3], anyhow::Error>{
+
+        //Grab the latest frame (if required)
+        if grab{
+            self.camera.grab(&self.runtime)?;
+        }
+
+        //Get the currently measured acceleration
+        let lin_acc = self.camera.sensors_data();      
+
+        
+        return [lin_acc.x, lin_acc.y, lin_acc.z]
     }
 
 }
