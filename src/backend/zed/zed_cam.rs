@@ -69,7 +69,9 @@ impl ZedCamera{
             px.0.swap(0, 2);
         }     
         
-        image.save(&fp)?;
+        let fp = format!("{}.png", fp);
+
+        image.save(fp)?;
 
         Ok(fp)
 
