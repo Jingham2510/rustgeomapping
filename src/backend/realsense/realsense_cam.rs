@@ -6,7 +6,7 @@
 /// not help identify the underlying problem, i.e. the bandwidth of the connection.
 use anyhow::{Result, bail, ensure};
 use realsense_rust;
-use realsense_rust::frame::{ColorFrame, PointsFrame};
+use realsense_rust::frame::{ColorFrame, PointsFrame, PoseFrame};
 use realsense_rust::pipeline::ActivePipeline;
 use realsense_rust::{
     config::Config,
@@ -169,15 +169,18 @@ impl RealsenseCam {
     ///Get the position data reported by the camera
     pub fn get_pose(&self) -> Result<[f32; 3], anyhow::Error>{
 
-        todo!();
 
         //Wait for a frame
+        let frame = self.pipeline.wait(None)?;
 
         //Extract the depth information from the frame
+        let pose_frame = frame.frames_of_type::<PoseFrame>();
 
-        //Process the frame
+        //Process the frame -- maybe
 
-        //REturn the estimated pose
+
+        //Return the estimated pose
+        return pose_frame.translation();
 
 
 
