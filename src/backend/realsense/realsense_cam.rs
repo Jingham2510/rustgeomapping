@@ -55,7 +55,6 @@ impl RealsenseCam {
         if cam_no > devices.len() {
             bail!("Invalid camera selection");
         }
-
         /*
         println!("devs: {:?}", devices);
         println!(
@@ -84,6 +83,10 @@ impl RealsenseCam {
         }else{
             config.enable_stream(Rs2StreamKind::Color, None, 1280, 720, Rs2Format::Rgb8, 30)?;
         }
+        
+        //Enable the pose estimation stream
+        config.enable_stream(Rs2StreamKind::Pose, None, 0, 0, Rs2Format::_6Dof)?;
+
         Ok((pipeline, config))
     }
 
@@ -162,6 +165,24 @@ impl RealsenseCam {
             0.0
         ))       
     }
+
+    ///Get the position data reported by the camera
+    pub fn get_pose(&self) -> Result<[f32; 3], anyhow::Error>{
+
+        todo!();
+
+        //Wait for a frame
+
+        //Extract the depth information from the frame
+
+        //Process the frame
+
+        //REturn the estimated pose
+
+
+
+    }
+
 
     ///hardware reset each of the connected devices
     pub fn reset_all() -> Result<(), anyhow::Error>{
