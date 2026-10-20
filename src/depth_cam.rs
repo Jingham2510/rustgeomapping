@@ -59,6 +59,13 @@ impl CamType {
         }
     }
 
+    pub fn imu_enabled(&self) -> &str{
+        match self{
+            CamType::RealsenseCam(cam) => {self.cam.imu_enabled()},
+            CamType::ZedCamera(cam) => {self.cam.imu_enabled()}           
+        }
+    }
+
 
 }
 
@@ -94,6 +101,9 @@ pub trait Required<T> {
 
     ///Get the estimated relative translation
     fn get_pos(&mut self) -> Result<[f32;3], anyhow::Error>;
+
+    ///Check if the imu is enabled
+    fn imu_enabled(&mut self) -> bool;
 
     ///Reset all connected hardware
     fn reset_all() -> Result<(), anyhow::Error>;
@@ -137,11 +147,7 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
 }
 
-impl DepthCam<RealsenseCam>{
-    pub fn imu_enabled(&self)->bool{
-        self.cam.imu_enabled()
-    }
-}
+
 
 impl Required<ZedCamera> for DepthCam<ZedCamera> {
     fn connect(id: u32) -> Result<DepthCam<ZedCamera>, anyhow::Error> {
@@ -175,6 +181,13 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
     fn reset_all() -> Result<(), anyhow::Error>{
         todo!()
     }
+
+    fn imu_enabled(&self)->bool{
+        self.cam.imu_enabled()
+    }
+
+    //IMU always on
+    fn imu_enabled(&self)->bool{ true }
 
 }
 
