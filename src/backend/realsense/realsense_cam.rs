@@ -87,7 +87,7 @@ impl RealsenseCam {
         }
         
         //Enable the pose estimation stream
-        let imu_enabled = if Ok(_) == config.enable_stream(Rs2StreamKind::Pose, None, 0, 0, Rs2Format::_6Dof, 30){
+        let imu_enabled = if Ok(allowed) == config.enable_stream(Rs2StreamKind::Pose, None, 0, 0, Rs2Format::_6Dof, 30){
             true
         }else{
             false
@@ -183,7 +183,7 @@ impl RealsenseCam {
 
         
         //Return the estimated pose
-        return pose_frame.last().translation();
+        return pose_frame.last().expect("No pose frame!").translation();
     }
 
 
