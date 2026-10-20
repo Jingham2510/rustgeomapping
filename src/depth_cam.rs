@@ -103,7 +103,7 @@ pub trait Required<T> {
     fn get_pos(&mut self) -> Result<[f32;3], anyhow::Error>;
 
     ///Check if the imu is enabled
-    fn imu_enabled(&mut self) -> bool;
+    fn imu_enabled(&self) -> bool;
 
     ///Reset all connected hardware
     fn reset_all() -> Result<(), anyhow::Error>;
@@ -139,6 +139,11 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
     fn get_pos(&mut self) -> Result<[f32;3], anyhow::Error>{
         self.cam.get_rel_pos()
+    }
+
+
+    fn imu_enabled(&self)->bool{
+        self.cam.imu_enabled()
     }
 
     fn reset_all() -> Result<(), anyhow::Error>{
@@ -182,9 +187,6 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
         todo!()
     }
 
-    fn imu_enabled(&self)->bool{
-        self.cam.imu_enabled()
-    }
 
     //IMU always on
     fn imu_enabled(&self)->bool{ true }
