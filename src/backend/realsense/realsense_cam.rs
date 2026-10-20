@@ -175,7 +175,7 @@ impl RealsenseCam {
     }
 
     ///Get the position data reported by the camera
-    pub fn get_rel_pos(&self) -> Result<[f32; 3], anyhow::Error>{
+    pub fn get_rel_pos(&mut self) -> Result<[f32; 3], anyhow::Error>{
 
         //Wait for a frame
         let frame = self.pipeline.wait(None)?;
