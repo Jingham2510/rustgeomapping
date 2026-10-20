@@ -86,7 +86,8 @@ impl RealsenseCam {
             config.enable_stream(Rs2StreamKind::Color, None, 1280, 720, Rs2Format::Rgb8, 30)?;
         }
 
-        //let res = config.enable_stream(Rs2StreamKind::Pose, None, 0, 0, Rs2Format::_6Dof, 30);
+        /*
+        let res = config.enable_stream(Rs2StreamKind::Pose, None, 0, 0, Rs2Format::_6Dof, 30);
         
         //Enable the pose estimation stream
         let imu_enabled =  if res.is_ok(){
@@ -94,6 +95,7 @@ impl RealsenseCam {
         }else{
             false
         };
+        */
 
         Ok((pipeline, config, imu_enabled))
     }
