@@ -52,6 +52,13 @@ impl CamType {
         }
     }
 
+    pub fn cam_type(&self) -> String{
+        match self{
+            CamType::RealsenseCam(cam) => String::from("Realsense"),
+            CamType::ZedCamera(cam) => String::from("Zed")            
+        }
+    }
+
 
 }
 
@@ -128,6 +135,12 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
         RealsenseCam::reset_all()
     }
 
+}
+
+impl DepthCam<RealsenseCam>{
+    pub fn imu_enabled(&self)->bool{
+        self.cam.imu_enabled();
+    }
 }
 
 impl Required<ZedCamera> for DepthCam<ZedCamera> {
