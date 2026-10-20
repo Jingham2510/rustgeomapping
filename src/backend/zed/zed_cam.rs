@@ -132,7 +132,11 @@ impl ZedCamera{
     }
 
     ///Calculate the relative pos from the acceleration and timestamp information
-    pub fn get_rel_pos(&mut self) -> Result<[f32;3], anyhow::Error>{
+    pub fn get_rel_pos(&mut self, grab : bool) -> Result<[f32;3], anyhow::Error>{
+
+        if grab{
+            self.camera.grab(&self.runtime)?;
+        }
 
         let cam_trans = self.camera.camera_imu_transform()?;
 

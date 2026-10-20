@@ -184,6 +184,10 @@ impl RealsenseCam {
     ///Get the position data reported by the camera
     pub fn get_rel_pos(&mut self) -> Result<[f32; 3], anyhow::Error>{
 
+
+        //This requires the use of imu and timestamp averaging (not possible on d435i)
+        todo!();
+
         //Wait for a frame
         let frame = self.pipeline.wait(None)?;
 
