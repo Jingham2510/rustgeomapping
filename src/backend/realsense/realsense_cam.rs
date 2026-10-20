@@ -96,6 +96,7 @@ impl RealsenseCam {
             false
         };
         */
+        let imu_enabled = false;
 
         Ok((pipeline, config, imu_enabled))
     }
