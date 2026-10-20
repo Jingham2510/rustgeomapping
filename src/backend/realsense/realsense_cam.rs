@@ -98,6 +98,10 @@ impl RealsenseCam {
         Ok((pipeline, config, imu_enabled))
     }
 
+    pub fn imu_enabled(&self) -> bool{
+        self.imu_enabled
+    }
+
     ///Return a raw xyz pointcloud from the camera
     pub fn get_depth_pnts(&mut self, max_range: f32) -> Result<Vec<[f32; 3]>> {
         //Wait for a frame to arrive
