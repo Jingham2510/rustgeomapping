@@ -52,10 +52,10 @@ impl CamType {
         }
     }
 
-    pub fn cam_type(&self) -> String{
+    pub fn cam_type(&self) -> &str{
         match self{
-            CamType::RealsenseCam(cam) => String::from("Realsense"),
-            CamType::ZedCamera(cam) => String::from("Zed")            
+            CamType::RealsenseCam(cam) => "Realsense",
+            CamType::ZedCamera(cam) => "Zed"            
         }
     }
 
