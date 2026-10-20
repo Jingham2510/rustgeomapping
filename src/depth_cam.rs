@@ -39,8 +39,8 @@ impl CamType {
 
     pub fn get_pos(&mut self) -> Result<[f32;3], anyhow::Error>{
         match self{
-            CamType::RealsenseCam(cam) => cam.pos(),
-            CamType::ZedCamera(cam) => cam.pos()
+            CamType::RealsenseCam(cam) => cam.get_pos(),
+            CamType::ZedCamera(cam) => cam.get_pos()
         }
     }
 

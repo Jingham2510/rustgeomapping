@@ -131,18 +131,6 @@ impl ZedCamera{
         PointCloud::create_from_iter(vertices)
     }
 
-    ///Get the timestamp from the camera
-    fn get_timestamp(&mut self, grab : bool) -> Result<(), anyhow::Error>{
-
-        if grab{
-            self.camera.grab(&self.runtime)?;            
-        }
-
-        self.timestamp = self.camera.image_timestamp();
-
-        Ok(())
-    }
-
     ///Calculate the relative pos from the acceleration and timestamp information
     pub fn get_rel_pos(&mut self) -> Result<[f32;3], anyhow::Error>{
 
@@ -150,7 +138,7 @@ impl ZedCamera{
 
         let translation = cam_trans.translation;
 
-        return [translation[0], translation[1], translation[2]]        
+        return [translation.x, translation.y, translation.y]        
         
     }
 
