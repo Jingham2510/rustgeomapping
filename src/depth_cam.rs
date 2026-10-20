@@ -36,6 +36,14 @@ impl CamType {
         }
     }
 
+
+    pub fn get_pos(&mut self) -> Result<[f32;3], anyhow::Error>{
+        match self{
+            CamType::RealsenseCam(cam) => cam.pos(),
+            CamType::ZedCamera(cam) => cam.pos()
+        }
+    }
+
     pub fn id(&self) -> u32{
         match self{
             CamType::RealsenseCam(cam) => cam.id(),
@@ -77,6 +85,9 @@ pub trait Required<T> {
     ///Save a colour image
     fn get_colour_image(&mut self, filepath: &str ) -> Result<String, anyhow::Error>;
 
+    ///Get the estimated relative translation
+    fn get_pos(&mut self) -> Result<[f32;3], anyhow::Error>;
+
     ///Reset all connected hardware
     fn reset_all() -> Result<(), anyhow::Error>;
 
@@ -109,6 +120,10 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
         self.cam.get_image(filepath)
     }
 
+    fn get_pos(&mut self) -> Result<[f32;3], anyhow::Error>{
+        self.cam.get_rel_pos()
+    }
+
     fn reset_all() -> Result<(), anyhow::Error>{
         RealsenseCam::reset_all()
     }
@@ -137,6 +152,10 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
     fn get_colour_image(&mut self, filepath: &str ) -> Result<String, anyhow::Error>{
         //Auto assume left lens
         self.cam.save_image(String::from(filepath), true)
+    }
+
+    fn get_pos(&mut self) -> Result<[f32;3], anyhow::Error>{
+        self.cam.get_rel_pos()
     }
 
     //Not implemented

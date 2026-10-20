@@ -26,13 +26,14 @@ pub struct RealsenseCam {
     pub cam_no: usize,
     pipeline: ActivePipeline,
     pcl_block: FrameProcBlock<PointsFrame>,
+    imu_enabled : bool
 }
 
 impl RealsenseCam {
     ///Connect and Initialise a camera
     /// When using multiple cameras, cam_no is used to specify which one to connect to
     pub fn initialise_raw(cam_no: usize) -> Result<Self, anyhow::Error> {
-        let (pipeline, config) = Self::setup(cam_no)?;
+        let (pipeline, config, imu_enabled) = Self::setup(cam_no)?;
 
         Ok(Self {
             cam_no,
@@ -40,10 +41,11 @@ impl RealsenseCam {
             //(This is done to get around the pipeline being consumed
             pipeline: pipeline.start(Some(config))?,
             pcl_block: FrameProcBlock::make_raw_points_block(1)?,
+            imu_enabled
         })
     }
 
-    fn setup(cam_no: usize) -> Result<(InactivePipeline, Config), anyhow::Error> {
+    fn setup(cam_no: usize) -> Result<(InactivePipeline, Config, bool), anyhow::Error> {
         // Check for depth or color-compatible devices.
         let mut queried_devices = HashSet::new();
         queried_devices.insert(Rs2ProductLine::D400);
@@ -85,9 +87,13 @@ impl RealsenseCam {
         }
         
         //Enable the pose estimation stream
-        config.enable_stream(Rs2StreamKind::Pose, None, 0, 0, Rs2Format::_6Dof)?;
+        let imu_enabled = if Ok(_) = config.enable_stream(Rs2StreamKind::Pose, None, 0, 0, Rs2Format::_6Dof){
+            true
+        }else{
+            false
+        };
 
-        Ok((pipeline, config))
+        Ok((pipeline, config, imu_enabled))
     }
 
     ///Return a raw xyz pointcloud from the camera
@@ -167,8 +173,7 @@ impl RealsenseCam {
     }
 
     ///Get the position data reported by the camera
-    pub fn get_pose(&self) -> Result<[f32; 3], anyhow::Error>{
-
+    pub fn get_rel_pos(&self) -> Result<[f32; 3], anyhow::Error>{
 
         //Wait for a frame
         let frame = self.pipeline.wait(None)?;
@@ -176,15 +181,13 @@ impl RealsenseCam {
         //Extract the depth information from the frame
         let pose_frame = frame.frames_of_type::<PoseFrame>();
 
-        //Process the frame -- maybe
-
-
+        
         //Return the estimated pose
         return pose_frame.translation();
-
-
-
     }
+
+
+
 
 
     ///hardware reset each of the connected devices

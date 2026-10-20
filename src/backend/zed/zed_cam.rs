@@ -6,11 +6,15 @@ use image::{RgbaImage};
 
 use crate::data_types::{pointcloud::PointCloud, intrinsic_info::IntrinsicInfo};
 
-
+///The zed camera data
 pub struct ZedCamera{
+    ///The connected camera device
     camera : Camera,
+    ///Resolution of the streams
     resolution : Resolution,
-    runtime : RuntimeParameters,
+    ///The runtime config
+    runtime : RuntimeParameters
+
 }
 
 
@@ -39,7 +43,7 @@ impl ZedCamera{
         }
 
         Ok(
-            ZedCamera {camera, resolution, runtime }
+            ZedCamera {camera, resolution, runtime}
         )
     }
 
@@ -127,19 +131,27 @@ impl ZedCamera{
         PointCloud::create_from_iter(vertices)
     }
 
-    ///Get the latest imu data
-    pub fn get_imu_acc(&mut self, grab : bool) -> Result<[f32;3], anyhow::Error>{
+    ///Get the timestamp from the camera
+    fn get_timestamp(&mut self, grab : bool) -> Result<(), anyhow::Error>{
 
-        //Grab the latest frame (if required)
         if grab{
-            self.camera.grab(&self.runtime)?;
+            self.camera.grab(&self.runtime)?;            
         }
 
-        //Get the currently measured acceleration
-        let lin_acc = self.camera.sensors_data();      
+        self.timestamp = self.camera.image_timestamp();
 
+        Ok(())
+    }
+
+    ///Calculate the relative pos from the acceleration and timestamp information
+    pub fn get_rel_pos(&mut self) -> Result<[f32;3], anyhow::Error>{
+
+        let cam_trans = self.camera.camera_imu_transform()?;
+
+        let translation = cam_trans.translation;
+
+        return [translation[0], translation[1], translation[2]]        
         
-        return [lin_acc.x, lin_acc.y, lin_acc.z]
     }
 
 }
