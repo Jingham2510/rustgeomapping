@@ -185,7 +185,7 @@ impl RealsenseCam {
 
         
         //Return the estimated pose
-        return pose_frame.last().expect("No pose frame!").translation();
+        return Ok(pose_frame.last().expect("No pose frame!").translation());
     }
 
 
