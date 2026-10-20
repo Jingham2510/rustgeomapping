@@ -61,8 +61,8 @@ impl CamType {
 
     pub fn imu_enabled(&self) -> &str{
         match self{
-            CamType::RealsenseCam(cam) => {self.cam.imu_enabled()},
-            CamType::ZedCamera(cam) => {self.cam.imu_enabled()}           
+            CamType::RealsenseCam(cam) => {cam.imu_enabled()},
+            CamType::ZedCamera(cam) => {cam.imu_enabled()}           
         }
     }
 
