@@ -139,7 +139,7 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
 impl DepthCam<RealsenseCam>{
     pub fn imu_enabled(&self)->bool{
-        self.cam.imu_enabled();
+        self.cam.imu_enabled()
     }
 }
 
