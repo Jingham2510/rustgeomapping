@@ -138,7 +138,7 @@ impl ZedCamera{
 
         let translation = cam_trans.translation;
 
-        return [translation.x, translation.y, translation.y]        
+        return Ok([translation.x, translation.y, translation.y])
         
     }
 
