@@ -21,6 +21,14 @@ impl CamType {
         }
     }
 
+    ///Take a pointcloud regardless of camera type
+    pub fn take_pcl_w_uncertainty(&mut self) -> Result<(PointCloud, Vec<f32>), anyhow::Error> {
+        match self {
+            CamType::RealsenseCam(cam)=> cam.get_pointcloud_w_uncertainty(),
+            CamType::ZedCamera(cam) => cam.get_pointcloud_w_uncertainty()
+        }
+    }
+
 
     pub fn get_intrinsics(&self) ->Result<IntrinsicInfo, anyhow::Error>{
         match self{
@@ -93,6 +101,9 @@ pub trait Required<T> {
     ///Take a pointcloud from the camera
     fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error>;
 
+    ///Take a pointcloud and return it - alongside a list of uncertainties
+    fn get_pointcloud_w_uncertainty(&mut self) -> Result<(Pointcloud, Vec<f32>), anyhow::Error>;
+
     ///Get the intrinsic information from a camera
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>;
 
@@ -127,6 +138,21 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
         //Split the info into cloud and timestamp
         PointCloud::create_from_iter(pcl_info)
+    }
+
+      fn get_pointcloud_w_uncertainty(&mut self) -> Result<(PointCloud,Vec<f32>), anyhow::Error> {
+        const MAX_RANGE: f32 = 2.0;
+        const SYSTEM_UNCERTAINTY : f32 = 0.02;
+
+        let pcl_info = self.cam.get_depth_pnts(MAX_RANGE)?;
+
+        //Get the pointcloud
+        let pcl = PointCloud::create_from_iter(pcl_info);
+
+        //Assume the uncertainty as reported by the realsense datasheet for now (assume sub 2m)
+        let mut uncertainty : Vec<f32> = vec![SYSTEM_UNCERTAINTY; pcl.no_of_points()];
+        
+       (pcl, uncertainty);
     }
 
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{
@@ -167,6 +193,21 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
     fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error> {
         //Range is determined by the setup config
         self.cam.get_pointcloud(true)
+    }
+      
+    fn get_pointcloud_w_uncertainty(&mut self) -> Result<(PointCloud,Vec<f32>), anyhow::Error> {
+        const MAX_RANGE: f32 = 2.0;
+        const SYSTEM_UNCERTAINTY : f32 = 0.01;
+
+        let pcl_info = self.cam.get_depth_pnts(MAX_RANGE)?;
+
+        //Get the pointcloud
+        let pcl = PointCloud::create_from_iter(pcl_info);
+
+        //Assume the uncertainty as reported by the realsense datasheet for now (assume sub 2m)
+        let mut uncertainty : Vec<f32> = vec![SYSTEM_UNCERTAINTY; pcl.no_of_points()];
+        
+       (pcl, uncertainty);
     }
 
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{

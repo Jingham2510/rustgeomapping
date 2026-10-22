@@ -10,7 +10,7 @@ pub struct Heightmap {
     height: usize,
     ///Number of pixel columns
     width: usize,
-
+    
     ///The number of cells present in the heightmap
     pub no_of_cells: u32,
 

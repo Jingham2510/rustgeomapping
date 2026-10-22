@@ -192,7 +192,7 @@ impl PointCloud {
     }
 
     ///Get the number of points in the cloud
-    pub fn size(&self) -> usize {
+    pub fn no_of_points(&self) -> usize {
         self.no_of_points
     }
 

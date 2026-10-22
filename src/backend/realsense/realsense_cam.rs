@@ -26,7 +26,7 @@ pub struct RealsenseCam {
     pub cam_no: usize,
     pipeline: ActivePipeline,
     pcl_block: FrameProcBlock<PointsFrame>,
-    imu_enabled : bool
+    imu_enabled : bool,
 }
 
 impl RealsenseCam {
