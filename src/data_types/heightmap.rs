@@ -73,6 +73,28 @@ impl Heightmap {
         }
     }
 
+    pub fn create_from_cells(cells : Vec<Vec<f32>>, bounds : &[f32], width: usize, height: usize) -> Heightmap{
+        //create the filename from the relative timestamp
+        let filename = format!("created from cells");
+
+        Self {
+            height,
+            width,
+            no_of_cells: height as u32 * width as u32,
+            min: 999.0,
+            max: -999.0,
+            min_updated: false,
+            max_updated: false,
+            min_pos: (0, 0),
+            max_pos: (0, 0),
+            cells,
+            lower_coord_bounds: [bounds[0], bounds[2]],
+            upper_coord_bounds: [bounds[1], bounds[3]],
+            filename,
+        }
+        
+    }
+
     ///Create a heightmap from a pointcloud (takes ownership of pcl object)
     pub fn create_from_pcl(
         pcl: PointCloud,
@@ -229,6 +251,9 @@ impl Heightmap {
             Heightmap::create_from_pcl(base_pcl, bins_per_row, bins_per_col)
         }
     }
+
+
+   
 
     ///Loads a hmap file and creates a heightmap from it
     pub fn create_from_file(filepath: String) -> Result<Self, anyhow::Error> {
