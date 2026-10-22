@@ -71,7 +71,7 @@ impl UncHeightmap{
 
 
     ///Transforms 3 point data into a 2.5d heightmap ( where the 3rd data point is the "height"/intensity)
-    /// Consider 
+    /// Consider  the uncertainties provided by unc_list (which are already weights)
     fn trans_to_heightmap(
         points: Vec<[f32; 3]>,
         unc_list : Vec<f32>,
@@ -132,6 +132,11 @@ impl UncHeightmap{
                 //Calculate the weighting of each point (for the variance also)
                 //Note that this will produce a biased variance if one point has a particularly high uncertainty
                 for (i, pnt) in pnts.iter().enumerate(){
+
+                    if pnt.is_nan(){
+                        continue;
+                    }
+
                     top += (pnt * uncertainties_list[x][y][i]);
 
                     var_top += (pnt.powi(2) * uncertainties_list[x][y][i]);
@@ -150,7 +155,7 @@ impl UncHeightmap{
                 if cnt == 0 || cnt == 1{
                     variance[x][y] = f32::NAN;
                 }else{
-                    variance[x][y] = ((var_top/bottom) - val_to_add.powi(2)) * (cnt/(cnt - 1)) as f32;
+                    variance[x][y] = ((var_top/bottom) - val_to_add.powi(2)) * (cnt as f32/(cnt as f32 - 1.0));
                 }
                 
 
