@@ -97,6 +97,57 @@ impl PointCloud {
         })
     }
 
+    ///Create a pointcloud from a list of vertices - assuming points are valid
+    pub fn create_from_iter_w_uncertainty(vertices: Vec<[f32; 3]>, uncertainty : f32) -> Result<(Self, Vec<f32>), anyhow::Error> {
+        let mut points: Vec<[f32; 3]> = vec![];
+        let mut no_of_points = 0;
+
+        let mut variance : Vec<f32> = vec![];
+
+        let mut x_max = -9999.0;
+        let mut x_min = 9999.0;
+        let mut y_max = -9999.0;
+        let mut y_min = 9999.0;
+        let mut z_max = -9999.0;
+        let mut z_min = 9999.0;
+
+        for vertex in vertices.iter() {
+            let x = vertex[0];
+            let y = vertex[1];
+            let z = vertex[2];
+
+            if x > x_max {
+                x_max = x;
+            } else if x < x_min {
+                x_min = x
+            }
+            if y > y_max {
+                y_max = y;
+            } else if y < y_min {
+                y_min = y
+            }
+            if z > z_max {
+                z_max = z;
+            } else if z < z_min {
+                z_min = z
+            }
+
+            points.push([vertex[0], vertex[1], vertex[2]]);
+            //Calculate the variance -- assuming that the provided uncertainty indicates the possible range of values
+            variance.push((uncertainty*vertex[2]).powi(2));
+            no_of_points += 1;
+        }
+
+        Ok((Self {
+            points,
+            no_of_points,
+            global_timestamp: Utc::now(),
+            filename: None,
+            bounds: [x_min, x_max, y_min, y_max, z_min, z_max],
+        }, variance))
+    }
+
+
     ///Create a pointcloud from a loaded file
     pub fn create_from_file(filepath: String) -> Result<Self, anyhow::Error> {
         //Create the filepath

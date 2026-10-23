@@ -146,13 +146,10 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
 
         let pcl_info = self.cam.get_depth_pnts(MAX_RANGE)?;
 
-        //Get the pointcloud
-        let pcl = PointCloud::create_from_iter(pcl_info);
+        //Get the pointcloud and calculate the variance
+        let (pcl, variance) = PointCloud::create_from_iter_w_uncertainty(pcl_info, SYSTEM_UNCERTAINTY);
 
-        //Assume the uncertainty as reported by the realsense datasheet for now (assume sub 2m)
-        let mut uncertainty : Vec<f32> = vec![SYSTEM_UNCERTAINTY; pcl.no_of_points()];
-        
-       (pcl, uncertainty);
+        (pcl, variance);
     }
 
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{
@@ -201,13 +198,10 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
 
         let pcl_info = self.cam.get_depth_pnts(MAX_RANGE)?;
 
-        //Get the pointcloud
-        let pcl = PointCloud::create_from_iter(pcl_info);
-
-        //Assume the uncertainty as reported by the realsense datasheet for now (assume sub 2m)
-        let mut uncertainty : Vec<f32> = vec![SYSTEM_UNCERTAINTY; pcl.no_of_points()];
+        //Get the pointcloud and calculate the variance
+        let (pcl, variance) = PointCloud::create_from_iter_w_uncertainty(pcl_info, SYSTEM_UNCERTAINTY);
         
-       (pcl, uncertainty);
+       (pcl, variance);
     }
 
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{
