@@ -55,7 +55,7 @@ impl UncHeightmap{
             let total_height = bounds[3] - bounds[2];
 
             //Calculate the cells
-            let (cells, variance) = UncHeightmap::trans_to_heightmap(base_pcl.consume_points(), unc_list,
+            let (cells, variance) = trans_to_heightmap_w_variance(base_pcl.consume_points(), unc_list,
                                     bins_per_row, bins_per_col, total_width, total_height, bounds[0], bounds[2])?;
 
             let hmap = Heightmap::create_from_cells(cells, &bounds[0..4], bins_per_row, bins_per_col);
@@ -70,9 +70,95 @@ impl UncHeightmap{
     }
 
 
-    ///Transforms 3 point data into a 2.5d heightmap ( where the 3rd data point is the "height"/intensity)
+    ///Updates a section of the heightmap by slotting in another heightmap
+    /// Assumes that the other heightmap has the same resolution
+    pub fn kalman_update_section(&mut self, other: UncHeightmap) -> Result<(), anyhow::Error> {
+
+
+        let self_upper_bnds = self.hmap.upper_coord_bounds();
+        let self_lower_bnds = self.hmap.lower_coord_bounds();
+        let other_upper_bnds = other.hmap.upper_coord_bounds();
+        let other_lower_bnds = other.hmap.lower_coord_bounds();
+
+        //Check that it is feasible for the other heightmap to sit on the main heightmap
+        if self_upper_bnds[0] < other_lower_bnds[0]
+            || self_lower_bnds[0] > other_upper_bnds[0]
+            || self_lower_bnds[1] > other_upper_bnds[1]
+            || self_upper_bnds[1] <other_lower_bnds[1]
+        {
+            println!("out of bounds");
+            bail!("Other heightmap does not sit on main!")
+        }
+
+        //--Locate bin in main that corresponds to first bin in other (can be negative - i.e. it starts outside)--
+        //Get bin resolution of main
+        let bin_res_width =
+            (self_upper_bnds[0] - self_lower_bnds[0]) / self.hmap.width() as f32;
+        let bin_res_height =
+            (self_upper_bnds[1] - self_lower_bnds[1]) / self.hmap.height() as f32;
+
+        let start_col = ((other_lower_bnds[0] - self_lower_bnds[0]) / bin_res_width).round() as i32;
+        let start_row = ((other_lower_bnds[1] - self_lower_bnds[1]) / bin_res_height).round() as i32;
+
+        //Go through each bin and and update the corresponding bin using a kalman filter approach
+         for x in start_col..(start_col + other.hmap.width() as i32) {
+                if x < 0 || x >= self.hmap.width() as i32 {
+                    continue;
+                }
+            for y in start_row..(start_row + other.hmap.height() as i32) {
+                if y < 0 || y >= self.hmap.height() as i32 {
+                    continue;
+                }
+
+
+                //KALMAN FILTER APPROACH----------               
+                let mut curr_val = self.hmap.cells()[x as usize][y as usize];
+                let mut curr_var = self.variance[x as usize][y as usize];
+                   
+                let other_val = other.hmap.cells()[(x - start_col) as usize][(y - start_row) as usize];
+                let other_var = other.variance[(x - start_col) as usize][(y - start_row) as usize];
+
+               
+
+                //Apply a random walk to the current variance -- to be updated to a noise field surrounding the tool
+                const Q_UPD : f32 = 0.002;
+
+                if let Some((posterior_height, posterior_var)) = UncHeightmap::kalman_cell(curr_val, curr_var, other_val, other_var, Q_UPD){
+                    self.hmap.set_cell_height(x as usize, y as usize, posterior_height)?;
+                    self.variance[x as usize][y as usize] = posterior_var;
+                };
+             
+              
+                
+            }
+        }
+        //Check that the bin doesnt reside outside the heightmap area
+
+        Ok(())
+    }
+
+    fn kalman_cell(curr_val: f32, curr_var: f32, other_val: f32, other_var: f32, q : f32) -> Option<(f32, f32)> {
+        if other_val.is_nan() || !other_var.is_finite() || other_var <= 0.0 {
+            return None;
+        }
+        // Unobserved cell (or unusable variance): take the measurement directly
+        if curr_val.is_nan() || !curr_var.is_finite() {
+            return Some((other_val, other_var));
+        }        
+        let prior_var = curr_var + q;
+        let k = prior_var / (prior_var + other_var);
+        Some((curr_val + k * (other_val - curr_val), (1.0 - k) * prior_var))
+}
+    
+
+
+
+}
+
+
+///Transforms 3 point data into a 2.5d heightmap ( where the 3rd data point is the "height"/intensity)
     /// Consider  the  variances provided by unc_list - which are assumed to all be positive and non-zero
-    fn trans_to_heightmap(
+    fn trans_to_heightmap_w_variance(
         points: Vec<[f32; 3]>,
         unc_list : Vec<f32>,
         bins_per_row: usize,
@@ -120,6 +206,7 @@ impl UncHeightmap{
                 //If the cell is NAN - keep it as a null cell
                 if pnts.iter().all(|pnt| pnt.is_nan()) || pnts.is_empty() {
                     cells[x][y] = f32::NAN;
+                    variance[x][y] = f32::NAN;
                     continue;
                 }
 
@@ -161,7 +248,3 @@ impl UncHeightmap{
 
         Ok((cells, variance))
     }
-
-
-
-}
