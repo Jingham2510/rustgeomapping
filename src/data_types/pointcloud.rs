@@ -1,7 +1,7 @@
 ///A set of tools around the creation and manipulation of point cloud objects
 use anyhow::bail;
 use chrono::{DateTime, Utc};
-use nalgebra::{Matrix4, Vector4};
+use nalgebra::{Matrix4, Vector4, Matrix3, Vector3};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
 
@@ -335,17 +335,24 @@ impl PointCloud {
 
     ///Transform a pointcloud by using a homogenous matrix
     pub fn transform_with(&mut self, tmat: &Matrix4<f32>) {
+
+        //Only checks in debug that the matrix is affine (i.e. bottom row is [0,0,0,1])
+        debug_assert!(
+        tmat[(3, 0)] == 0.0 && tmat[(3, 1)] == 0.0 && tmat[(3, 2)] == 0.0 && tmat[(3, 3)] == 1.0
+        );
+
+        // Pull out the linear part and translation once
+        let r: Matrix3<f32> = tmat.fixed_view::<3, 3>(0, 0).into_owned();
+        let t: Vector3<f32> = tmat.fixed_view::<3, 1>(0, 3).into_owned();
+
         //Transform each point
         for pnt in self.points.iter_mut() {
-            //Pad a 1 for vlaid matrix multiplication
-            let temp_pnt = Vector4::new(pnt[0], pnt[1], pnt[2], 1.0);
+            //Affine transformation
+            let p = r * Vector3::new(pnt[0], pnt[1], pnt[2]) + t;
 
-            //Multiple the matrix and the temp point
-            let temp_pnt = tmat * temp_pnt;
-
-            pnt[0] = temp_pnt[0];
-            pnt[1] = temp_pnt[1];
-            pnt[2] = temp_pnt[2];
+            pnt[0] = p[0];
+            pnt[1] = p[1];
+            pnt[2] = p[2];
         }
 
         //Calculate the new bounds by transforming the point
