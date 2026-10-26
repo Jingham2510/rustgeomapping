@@ -11,6 +11,8 @@ Design notes:
 
 */
 
+use std::{fs::File, io::Write};
+
 use crate::data_types::{heightmap::Heightmap, pointcloud::PointCloud};
 use anyhow::{Error, bail};
 
@@ -100,6 +102,12 @@ impl UncHeightmap{
         let start_col = ((other_lower_bnds[0] - self_lower_bnds[0]) / bin_res_width).round() as i32;
         let start_row = ((other_lower_bnds[1] - self_lower_bnds[1]) / bin_res_height).round() as i32;
 
+
+        //Calculate the center point of the new heightmap
+        let x_centre = (start_col  as f32 + (other.hmap.width() as f32 /2.0)) as usize;
+        let y_centre = (start_row  as f32 + (other.hmap.height() as f32 /2.0)) as usize;
+
+
         //Go through each bin and and update the corresponding bin using a kalman filter approach
          for x in start_col..(start_col + other.hmap.width() as i32) {
                 if x < 0 || x >= self.hmap.width() as i32 {
@@ -112,18 +120,21 @@ impl UncHeightmap{
 
 
                 //KALMAN FILTER APPROACH----------               
-                let mut curr_val = self.hmap.cells()[x as usize][y as usize];
-                let mut curr_var = self.variance[x as usize][y as usize];
+                let curr_val = self.hmap.cells()[x as usize][y as usize];
+                let curr_var = self.variance[x as usize][y as usize];
                    
                 let other_val = other.hmap.cells()[(x - start_col) as usize][(y - start_row) as usize];
                 let other_var = other.variance[(x - start_col) as usize][(y - start_row) as usize];
 
-               
-
-                //Apply a random walk to the current variance -- to be updated to a noise field surrounding the tool
+                //Baseline Q value
                 const Q_UPD : f32 = 0.002;
 
-                if let Some((posterior_height, posterior_var)) = UncHeightmap::kalman_cell(curr_val, curr_var, other_val, other_var, Q_UPD){
+                //Calculate a noise field for likelihood of terrain change (the closer to the centre the more likely the change)
+                let q = Q_UPD / ((x - x_centre as i32).pow(2) + (y - y_centre as i32).pow(2)).pow(2) as f32;
+
+
+
+                if let Some((posterior_height, posterior_var)) = UncHeightmap::kalman_cell(curr_val, curr_var, other_val, other_var, q){
                     self.hmap.set_cell_height(x as usize, y as usize, posterior_height)?;
                     self.variance[x as usize][y as usize] = posterior_var;
                 };
@@ -145,10 +156,55 @@ impl UncHeightmap{
         if curr_val.is_nan() || !curr_var.is_finite() {
             return Some((other_val, other_var));
         }        
+        //Update the priori variation with a provided q (random walk or otherwise)
         let prior_var = curr_var + q;
+        //Calculate the kalman gain
         let k = prior_var / (prior_var + other_var);
+        //Calculate the posterior height and the posterior variation
         Some((curr_val + k * (other_val - curr_val), (1.0 - k) * prior_var))
-}
+    }
+
+
+    ///Saves the heightmap to a text file and the variance map to a seperate text file
+    pub fn save_to_file(&self, filepath: &str) -> Result<(), anyhow::Error> {
+
+        //Save the heightmap
+        self.hmap.save_to_file(filepath);
+
+        //Save the variance heightmap in the same way
+
+        //Create a file
+        let mut file = File::create(filepath.to_owned() + "_var.txt")?;
+
+        //Format the first line to store the real bounds
+        let first_line = format!(
+            "bnds(low_point,upper_point):[{},{}][{},{}]\n",
+            self.hmap.lower_coord_bounds()[0],
+            self.hmap.lower_coord_bounds()[1],
+            self.hmap.upper_coord_bounds()[0],
+            self.hmap.upper_coord_bounds()[1]
+        );
+        file.write_all(first_line.as_bytes())?;
+
+        let mut mat_string = String::from("");
+
+        //Iterate thorugh each row
+        for row in self.variance.iter() {
+            let mut row_string = String::new();
+
+            for var in row {
+                row_string.push_str(&format!("{},", var));
+            }
+
+            row_string.push('\n');
+
+            mat_string.push_str(&row_string);
+        }
+
+        file.write_all(mat_string.as_bytes())?;
+
+        Ok(())
+    }
     
 
 
