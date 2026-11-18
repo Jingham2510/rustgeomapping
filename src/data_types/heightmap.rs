@@ -3,6 +3,7 @@ use crate::data_types::pointcloud::PointCloud;
 use anyhow::bail;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
+use std::ops::Sub;
 ///Heightmap structure - contains the size and height information for each cell
 #[derive(Clone)]
 pub struct Heightmap {
@@ -1027,3 +1028,35 @@ fn sub_nan_f32(var: f32, val: f32) -> f32 {
     add_nan_f32(var, -val)
 }
 
+
+impl Sub for Heightmap{
+
+    type Output = Heightmap;
+    
+    //Matrix cell subtraction
+    fn sub(self, rhs: Self) -> Self::Output {
+
+        //Ensure that the heightmaps are the same size
+        assert!(self.width == rhs.width && self.height == rhs.height);
+
+        //Ensure that the bounds are the same
+        assert!(self.lower_coord_bounds == rhs.lower_coord_bounds && self.upper_coord_bounds == rhs.upper_coord_bounds);
+        
+        let lhs_cells = self.cells;
+        let rhs_cells = rhs.cells;
+
+
+
+        let mut subbed_cells : Vec<Vec<f32>> = vec![vec![]];
+
+        for (i, _row) in lhs_cells.iter().enumerate(){
+            for (j, _cell) in lhs_cells.iter().enumerate(){
+                subbed_cells[i][j] = lhs_cells[i][j] - rhs_cells[i][j]
+            }
+        }
+
+        Heightmap::create_from_cells(subbed_cells,& [self.lower_coord_bounds[0], self.lower_coord_bounds[1], self.upper_coord_bounds[0], self.upper_coord_bounds[1]], self.width, self.height)
+    }
+
+    
+}   
