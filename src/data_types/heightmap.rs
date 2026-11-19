@@ -13,7 +13,7 @@ pub struct Heightmap {
     width: usize,
     
     ///The number of cells present in the heightmap
-    pub no_of_cells: u32,
+    no_of_cells: u32,
 
     ///The point defined minimum cell height
     min: f32,
@@ -881,7 +881,10 @@ impl Heightmap {
         }
 
         sampled_depths
+    }
 
+    pub fn no_of_cells(&self) -> u32{
+        self.no_of_cells
     }
 
 }
