@@ -30,7 +30,7 @@ impl ZedCamera{
         .depth_mode(zed_sdk::DepthMode::Quality)
         .coordinate_unit(zed_sdk::Unit::Meter)
         .coordinate_system(zed_sdk::CoordinateSystem::RightHandedYUp)
-        .depth_range_m(Option::from(0.0), 2.0)
+        .depth_range_m(Option::from(0.0), 1.0)
         .fps(30);
 
         println!("Options set");
@@ -42,9 +42,11 @@ impl ZedCamera{
         println!("Runtime set");
 
         // The first few frames after open can be empty, so grab a handful just to clear it
-        for _ in 0..10 {
-            camera.grab(&runtime)?;
+        match camera.grab(&runtime) {
+            Ok(_) => println!("Frame acquired"),
+            Err(e) => println!("Frame acquisition failed: {:?}", e),
         }
+
 
         Ok(
             ZedCamera {camera, resolution, runtime}
