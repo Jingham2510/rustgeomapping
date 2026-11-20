@@ -38,7 +38,7 @@ impl ZedCamera{
         .coordinate_unit(zed_sdk::Unit::Meter)
         .coordinate_system(zed_sdk::CoordinateSystem::RightHandedYUp)
         .depth_range_m(Option::from(0.0), 1.0)
-        .fps(30);
+        .fps(15);
 
 
         let mut camera = Camera::open(options)?;
