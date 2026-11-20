@@ -20,8 +20,10 @@ pub struct ZedCamera{
 
     ///The depth frame
     depth_frame : Mat::<Point3Color>
-
 }
+
+unsafe impl<T: MatElement> Send for Mat<T> {}
+
 
 
 impl ZedCamera{
