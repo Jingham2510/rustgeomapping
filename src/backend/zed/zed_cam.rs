@@ -33,17 +33,15 @@ impl ZedCamera{
         .depth_range_m(Option::from(0.0), 1.0)
         .fps(30);
 
-        println!("Options set");
 
         let mut camera = Camera::open(options)?;
         let resolution = camera.resolution()?;
         let runtime = RuntimeParameters::default();
 
-        println!("Runtime set");
 
         // The first few frames after open can be empty, so grab a handful just to clear it
         match camera.grab(&runtime) {
-            Ok(_) => println!("Frame acquired"),
+            Ok(_) => println!("Zed test frame acquired"),
             Err(e) => println!("Frame acquisition failed: {:?}", e),
         }
 
