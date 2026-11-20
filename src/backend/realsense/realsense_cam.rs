@@ -53,10 +53,15 @@ impl RealsenseCam {
         let devices = context.query_devices(queried_devices);
         ensure!(!devices.is_empty(), "No devices found");
 
+    
+
         //If the provided camera number is too high - bail  
         if cam_no > devices.len() {
             bail!("Invalid camera selection");
         }
+
+        println!("no of cams: {}", devices.len());
+        println!("{} - cam" cam_no);
         /*
         println!("devs: {:?}", devices);
         println!(
