@@ -22,7 +22,8 @@ pub struct ZedCamera{
     depth_frame : Mat::<Point3Color>
 }
 
-
+//Define that the zed camera is safe to be shared amongst threads (as we only access each camera once)
+unsafe impl Send for ZedCamera {}
 
 impl ZedCamera{
 
