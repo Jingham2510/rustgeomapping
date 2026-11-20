@@ -61,7 +61,7 @@ impl RealsenseCam {
         }
 
         println!("no of cams: {}", devices.len());
-        println!("{} - cam" cam_no);
+        println!("{} - cam" ,cam_no);
         /*
         println!("devs: {:?}", devices);
         println!(
