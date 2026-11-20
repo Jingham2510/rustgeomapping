@@ -36,7 +36,7 @@ impl ZedCamera{
         .resolution(ResolutionPreset::Hd1080)
         .depth_mode(zed_sdk::DepthMode::Quality)
         .coordinate_unit(zed_sdk::Unit::Meter)
-        .coordinate_system(zed_sdk::CoordinateSystem::LeftHandedYUp)
+        .coordinate_system(zed_sdk::CoordinateSystem::Image)
         .depth_range_m(Option::from(0.0), 1.0)
         .fps(15);
 
