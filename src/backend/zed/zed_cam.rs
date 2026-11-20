@@ -13,7 +13,13 @@ pub struct ZedCamera{
     ///Resolution of the streams
     resolution : Resolution,
     ///The runtime config
-    runtime : RuntimeParameters
+    runtime : RuntimeParameters,
+
+    ///The image frame
+    image_frame :  Mat::<Rgba8>,
+
+    ///The depth frame
+    depth_frame : Mat::<Point3Color>
 
 }
 
@@ -47,28 +53,27 @@ impl ZedCamera{
 
 
         Ok(
-            ZedCamera {camera, resolution, runtime}
+            ZedCamera {camera, resolution, runtime, image_frame : Mat::<Rgba8>::new_cpu(self.resolution)?, depth_frame : Mat::<Point3Color>::new_cpu(self.resolution)?}
         )
     }
 
     ///Capture an image from the then save it to the desired filepath
     /// Left determines which lens the image is grabbed from
     pub fn save_image(&mut self, fp : String, left : bool) -> Result<String, anyhow::Error>{
-        //Prep an empty frame
-        let mut frame = Mat::<Rgba8>::new_cpu(self.resolution)?;
+        
 
         //Grab the latest frame
         self.camera.grab(&self.runtime)?;
 
         //Extract the correct lens side
         if left{
-            self.camera.retrieve_left(&mut frame)?;
+            self.camera.retrieve_left(&mut self.image_frame)?;
         }else{
-            self.camera.retrieve_right(&mut frame)?;
+            self.camera.retrieve_right(&mut self.image_frame)?;
         }
 
         //Create an immutable view of the colour frame
-        let frame_view = frame.view()?;
+        let frame_view = self.image_frame.view()?;
 
         let mut image = RgbaImage::from_raw(frame_view.width() as u32, frame_view.height() as u32, frame_view.as_padded_bytes().to_vec()).unwrap();
 
@@ -109,18 +114,17 @@ impl ZedCamera{
 
     //Get the latest pointcloud from the zed camera
     pub fn get_depth_pnts(&mut self, grab : bool) -> Result<PointCloud, anyhow::Error>{
-        //Prep an empty frame
-        let mut frame = Mat::<Point3Color>::new_cpu(self.resolution)?;
+        
 
         //Grab the latest frame
         if grab{
             self.camera.grab(&self.runtime)?;
         }
         //Get the point map - zed_sdk crate cant access retrieve_xyz...
-        self.camera.retrieve_xyzrgba(&mut frame)?;
+        self.camera.retrieve_xyzrgba(&mut self.depth_frame)?;
 
         //view the point set
-        let view = frame.view()?;
+        let view = self.depth_frame.view()?;
 
         //Convert to the rustgeomapping pointtype
         let vertices : Vec<[f32; 3]> = view.rows()
