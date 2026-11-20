@@ -60,8 +60,6 @@ impl RealsenseCam {
             bail!("Invalid camera selection");
         }
 
-        println!("no of cams: {}", devices.len());
-        println!("{} - cam" ,cam_no);
         /*
         println!("devs: {:?}", devices);
         println!(
