@@ -102,7 +102,7 @@ pub trait Required<T> {
     fn get_pointcloud(&mut self) -> Result<PointCloud, anyhow::Error>;
 
     ///Take a pointcloud and return it - alongside a list of uncertainties
-    fn get_pointcloud_w_uncertainty(&mut self) -> Result<(Pointcloud, Vec<f32>), anyhow::Error>;
+    fn get_pointcloud_w_uncertainty(&mut self) -> Result<(PointCloud, Vec<f32>), anyhow::Error>;
 
     ///Get the intrinsic information from a camera
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>;
@@ -149,7 +149,7 @@ impl Required<RealsenseCam> for DepthCam<RealsenseCam> {
         //Get the pointcloud and calculate the variance
         let (pcl, variance) = PointCloud::create_from_iter_w_uncertainty(pcl_info, SYSTEM_UNCERTAINTY);
 
-        (pcl, variance);
+        Ok((pcl, variance))
     }
 
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{
@@ -201,7 +201,7 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
         //Get the pointcloud and calculate the variance
         let (pcl, variance) = PointCloud::create_from_iter_w_uncertainty(pcl_info, SYSTEM_UNCERTAINTY);
         
-       (pcl, variance);
+       Ok((pcl, variance))
     }
 
     fn get_intrinsic(&self) -> Result<IntrinsicInfo, anyhow::Error>{

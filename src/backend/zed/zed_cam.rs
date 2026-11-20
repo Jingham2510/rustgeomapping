@@ -110,7 +110,7 @@ impl ZedCamera{
     }
 
     //Get the latest pointcloud from the zed camera
-    pub fn get_pointcloud(&mut self, grab : bool) -> Result<PointCloud, anyhow::Error>{
+    pub fn get_depth_pnts(&mut self, grab : bool) -> Result<PointCloud, anyhow::Error>{
         //Prep an empty frame
         let mut frame = Mat::<Point3Color>::new_cpu(self.resolution)?;
 
