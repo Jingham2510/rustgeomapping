@@ -214,7 +214,7 @@ impl Required<ZedCamera> for DepthCam<ZedCamera> {
     }
 
     fn get_pos(&mut self) -> Result<[f32;3], anyhow::Error>{
-        self.cam.get_rel_pos(false)
+        self.cam.get_rel_pos(true)
     }
 
     //Not implemented
