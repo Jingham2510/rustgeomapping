@@ -52,8 +52,10 @@ impl ZedCamera{
         }
 
 
+        let image_frame =  Mat::<Rgba8>::new_cpu(resolution)?;
+        let depth_frame =  Mat::<Point3Color>::new_cpu(resolution)?;
         Ok(
-            ZedCamera {camera, resolution, runtime, image_frame : Mat::<Rgba8>::new_cpu(self.resolution)?, depth_frame : Mat::<Point3Color>::new_cpu(self.resolution)?}
+            ZedCamera {camera, resolution, runtime, image_frame, depth_frame}
         )
     }
 
